@@ -1,28 +1,38 @@
 import React from 'react';
-import { Download, FileText } from 'lucide-react';
+import { Download } from 'lucide-react';
 
 export default function Header({ onExport, exportDisabled }) {
-    return (
-        <header className="app-header">
-            <div className="container header-content">
-                <div className="logo-section">
-                    <div className="logo-icon">
-                        <FileText size={24} color="#fff" />
-                    </div>
-                    <h1 className="logo-text">Dirección Técnica IA LAB</h1>
-                </div>
+  return (
+    <header className="app-header">
+      <div className="container header-content">
+        <div className="logo-section">
+          <img
+            src="/logo-direccion-tecnica.jpg"
+            alt="Dirección Técnica"
+            className="logo-img"
+            onError={(e) => {
+              e.target.onerror = null;
+              e.target.style.display = 'none';
+              e.target.nextSibling.style.display = 'block';
+            }}
+          />
+          {/* Fallback code if image is missing */}
+          <div className="logo-placeholder" style={{ display: 'none' }}>DT</div>
 
-                <button
-                    className="btn btn-primary"
-                    onClick={onExport}
-                    disabled={exportDisabled}
-                >
-                    <Download size={18} />
-                    Exportar PDF
-                </button>
-            </div>
+          <h1 className="logo-text">Dirección Técnica FDS</h1>
+        </div>
 
-            <style>{`
+        <button
+          className="btn btn-primary"
+          onClick={onExport}
+          disabled={exportDisabled}
+        >
+          <Download size={18} />
+          Exportar PDF
+        </button>
+      </div>
+
+      <style>{`
         .app-header {
           background-color: var(--color-white);
           border-bottom: 1px solid var(--color-border);
@@ -48,14 +58,22 @@ export default function Header({ onExport, exportDisabled }) {
           gap: 1rem;
         }
 
-        .logo-icon {
+        .logo-img {
+          height: 48px;
+          width: auto;
+          object-fit: contain;
+        }
+        
+        .logo-placeholder {
           width: 40px;
           height: 40px;
-          background-color: var(--color-primary);
-          border-radius: var(--radius-sm);
+          background: var(--color-primary);
+          color: white;
+          border-radius: 4px;
           display: flex;
           align-items: center;
           justify-content: center;
+          font-weight: bold;
         }
 
         .logo-text {
@@ -65,6 +83,6 @@ export default function Header({ onExport, exportDisabled }) {
           letter-spacing: -0.5px;
         }
       `}</style>
-        </header>
-    );
+    </header>
+  );
 }

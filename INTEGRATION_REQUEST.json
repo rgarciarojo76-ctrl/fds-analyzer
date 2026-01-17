@@ -1,0 +1,8 @@
+{
+    "integration_request": {
+        "name": "FDS Analyzer",
+        "id": "fds-analyzer",
+        "url": "https://direccion-tecnica-fds-analyzer.vercel.app/",
+        "active": true
+    }
+}

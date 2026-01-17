@@ -2,17 +2,14 @@ import React, { useState } from 'react';
 import Header from './components/Header';
 import DropZone from './components/DropZone';
 import AnalysisCard from './components/AnalysisCard';
-import AuthScreen from './components/AuthScreen';
 import { extractTextFromPDF } from './services/pdf';
 import { generatePDF } from './services/report';
 
 export default function App() {
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
+    // Authentication is now handled by Gatekeeper wrapper
     const [isProcessing, setIsProcessing] = useState(false);
     const [data, setData] = useState(null);
-    const [progress, setProgress] = useState(0); // Progress for PDF reading
-
-    const handleAuthenticated = () => setIsAuthenticated(true);
+    const [progress, setProgress] = useState(0);
 
     const handleFileSelect = async (file) => {
         setIsProcessing(true);
@@ -60,10 +57,6 @@ export default function App() {
         generatePDF(data, data.productName);
     };
 
-    if (!isAuthenticated) {
-        return <AuthScreen onAuthenticated={handleAuthenticated} />;
-    }
-
     // Card Definitions for mapping
     const cardDefinitions = [
         { key: 'card1', title: '1. Identificación de la Sustancia' },
@@ -80,7 +73,6 @@ export default function App() {
         { key: 'card12', title: '12. Información Ecológica y Residuos' },
     ];
 
-    // Determine critical sections (Example logic: 2, 4, 8 are usually critical)
     const criticalSections = ['card2', 'card4', 'card8'];
 
     return (
