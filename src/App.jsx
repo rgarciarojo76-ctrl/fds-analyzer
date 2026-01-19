@@ -122,10 +122,12 @@ export default function App() {
         }
 
         .hero-wrapper {
-          min-height: 60vh;
+          min-height: calc(100vh - 160px); /* Adjust for header + padding */
           display: flex;
+          flex-direction: column;
           align-items: center;
           justify-content: center;
+          padding: 2rem 0;
         }
 
         .results-header {
