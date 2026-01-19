@@ -43,7 +43,7 @@ export default function DropZone({ onFileSelect, isProcessing }) {
         Análisis Ficha de Datos de Seguridad de Productos Químicos
       </h1>
       <h3 className="landing-subtitle">
-        Asistente virtual para la extracción y análisis de información preventiva en manuales de maquinaria
+        Asistente virtual para la extracción y análisis de información preventiva en fichas de datos de seguridad
       </h3>
       <p className="landing-description">
         Este sistema utiliza Inteligencia Artificial para procesar el manual del fabricante,
