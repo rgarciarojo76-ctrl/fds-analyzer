@@ -1,5 +1,5 @@
 import React from 'react';
-import { Download } from 'lucide-react';
+import { Download, AlertTriangle } from 'lucide-react';
 
 export default function Header({ onExport, exportDisabled }) {
   return (
@@ -31,13 +31,19 @@ export default function Header({ onExport, exportDisabled }) {
         </div>
 
         {/* Sección Central: Avisos */}
-        <div className="avisos-section">
+        <div className="status-section">
           <div className="status-badge">
             Estado: Piloto interno
           </div>
-          <p className="disclaimer-text">
-            AVISO: Apoyo técnico (no sustitutivo del criterio profesional). La información debe ser validada.
-          </p>
+          <div className="status-disclaimer">
+            <AlertTriangle size={18} className="disclaimer-icon" />
+            <div className="disclaimer-content">
+              <span className="disclaimer-title">AVISO:</span>
+              <span className="disclaimer-body">
+                Apoyo técnico (no sustitutivo del criterio profesional). La información debe ser validada.
+              </span>
+            </div>
+          </div>
         </div>
 
         {/* Sección Derecha: Acciones (Exportar) */}
@@ -129,13 +135,13 @@ export default function Header({ onExport, exportDisabled }) {
           line-height: 1.2;
         }
 
-        /* Avisos Section */
-        .avisos-section {
+        /* Avisos Section -> Status Section */
+        .status-section {
           display: flex;
-          flex-direction: column;
+          flex-direction: row; /* User requested row alignment */
           align-items: center;
           justify-content: center;
-          gap: 0.25rem;
+          gap: 1rem;
         }
 
         .status-badge {
@@ -147,14 +153,10 @@ export default function Header({ onExport, exportDisabled }) {
           border-radius: 999px;
           font-weight: 600;
           display: inline-block;
+          white-space: nowrap; /* Prevent badge wrapping */
         }
-
-        .disclaimer-text {
-          color: var(--color-warning-text);
-          font-size: 0.7rem;
-          margin: 0;
-          font-weight: 500;
-        }
+        
+        /* Removed disclaimer-text style as it is replaced by global status-disclaimer */
 
         /* Actions Section */
         .actions-section {
@@ -198,12 +200,14 @@ export default function Header({ onExport, exportDisabled }) {
             font-size: 0.65rem;
           }
 
-          .avisos-section {
+          .status-section {
             width: 100%;
+            flex-direction: column; /* Stack on mobile */
             text-align: center;
             border-top: 1px dashed var(--color-border);
             border-bottom: 1px dashed var(--color-border);
             padding: 0.5rem 0;
+            gap: 0.75rem;
           }
 
           .actions-section {
