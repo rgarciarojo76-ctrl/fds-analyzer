@@ -26,7 +26,7 @@ export default function Header({ onExport, exportDisabled }) {
 
           <div className="branding-text">
             <h1 className="main-title">DIRECCIÓN TÉCNICA IA LAB</h1>
-            <p className="sub-title">App: Análisis de Manuales – Riesgos PRL</p>
+            <p className="sub-title">App: Análisis FDS</p>
           </div>
         </div>
 
