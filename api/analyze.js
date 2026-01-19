@@ -1,8 +1,9 @@
+import { GoogleGenerativeAI } from "@google/generative-ai";
+
 export const config = {
-    runtime: 'edge', // Using Edge for potentially longer timeouts or streaming if needed
+    runtime: 'edge',
 };
 
-// Prompt de Sistema Definido por el Usuario (Técnico PRL)
 const SYSTEM_PROMPT = `
 Rol: Eres un experto Técnico en Seguridad Química y PRL (Prevención de Riesgos Laborales).
 Tarea: Analiza el texto extraído de una Ficha de Datos de Seguridad (FDS) y extrae información crítica para la evaluación de riesgos.
@@ -40,7 +41,6 @@ export default async function handler(request) {
     try {
         const { text } = await request.json();
 
-        // Validación básica de entrada
         if (!text || text.length < 50) {
             return new Response(JSON.stringify({ error: 'El texto extraído es demasiado corto o inválido.' }), {
                 status: 400,
@@ -56,48 +56,28 @@ export default async function handler(request) {
             });
         }
 
-        // Usamos gemini-2.5-flash como en la app de referencia (Manuals Analyzer)
-        const model = "gemini-2.5-flash";
-
-        const payload = {
-            contents: [
-                {
-                    role: "user",
-                    parts: [
-                        { text: SYSTEM_PROMPT },
-                        { text: `-- INICIO DE DOCUMENTO FDS --\n${text}\n-- FIN DE DOCUMENTO FDS --` }
-                    ]
-                }
-            ],
+        // Inicializar SDK
+        const genAI = new GoogleGenerativeAI(apiKey);
+        // Usamos gemini-1.5-pro según lo solicitado
+        const model = genAI.getGenerativeModel({
+            model: "gemini-1.5-pro",
             generationConfig: {
-                // gemini-pro 1.0 support response_mime_type only in stricter conditions, so we remove strict json mode config for safety
-                // and rely on the prompt instructions.
-                temperature: 0.1,
+                responseMimeType: "application/json",
+                temperature: 0.1
             }
-        };
+        });
 
-        const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
-            {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify(payload)
-            }
-        );
+        const prompt = SYSTEM_PROMPT + "\n\n-- INICIO DE DOCUMENTO FDS --\n" + text + "\n-- FIN DE DOCUMENTO FDS --";
 
-        if (!response.ok) {
-            const errorData = await response.text();
-            throw new Error(`Error de Google AI: ${response.status} - ${errorData}`);
-        }
-
-        const data = await response.json();
-        const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
+        const result = await model.generateContent(prompt);
+        const response = await result.response;
+        const generatedText = response.text();
 
         if (!generatedText) {
             throw new Error("La IA no generó respuesta válida.");
         }
 
-        // Limpieza de Markdown si la IA ignora la instrucción de JSON puro (backup safety)
+        // Limpieza de Markdown por seguridad (aunque responseMimeType debería evitarlo)
         let cleanJsonString = generatedText;
         if (cleanJsonString.startsWith('```json')) {
             cleanJsonString = cleanJsonString.replace(/^```json\s*/, '').replace(/\s*```$/, '');
@@ -111,7 +91,7 @@ export default async function handler(request) {
         } catch (e) {
             console.error("Error parseando JSON de IA:", e);
             console.error("Texto recibido:", generatedText);
-            throw new Error("La respuesta de la IA no tiene un formato válido.");
+            throw new Error("La respuesta de la IA no tiene un formato válido: " + generatedText.substring(0, 50) + "...");
         }
 
         return new Response(JSON.stringify(jsonResponse), {
@@ -120,8 +100,8 @@ export default async function handler(request) {
         });
 
     } catch (error) {
-        console.error(error);
-        return new Response(JSON.stringify({ error: error.message }), {
+        console.error("API Error:", error);
+        return new Response(JSON.stringify({ error: error.message || 'Error desconocido en el servidor' }), {
             status: 500,
             headers: { 'Content-Type': 'application/json' },
         });
