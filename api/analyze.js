@@ -56,8 +56,8 @@ export default async function handler(request) {
             });
         }
 
-        // Usamos gemini-pro (1.0) como fallback de máxima compatibilidad
-        const model = "gemini-pro";
+        // Usamos gemini-2.5-flash como en la app de referencia (Manuals Analyzer)
+        const model = "gemini-2.5-flash";
 
         const payload = {
             contents: [
