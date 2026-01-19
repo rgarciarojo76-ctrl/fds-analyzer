@@ -1,7 +1,9 @@
 import { GoogleGenerativeAI } from "@google/generative-ai";
 
+// Configuración de Vercel (Serverless Function)
 export const config = {
-    runtime: 'edge',
+    maxDuration: 60, // Aumentar timeout a 60 segundos (requiere plan Pro para >10s, pero si falla 504 es lo indicado)
+    // runtime: 'nodejs', // Por defecto es nodejs
 };
 
 const SYSTEM_PROMPT = `
