@@ -58,9 +58,9 @@ export default async function handler(request) {
 
         // Inicializar SDK
         const genAI = new GoogleGenerativeAI(apiKey);
-        // Usamos gemini-1.5-pro según lo solicitado
+        // Usamos gemini-pro-latest como en la app 'risk-analysis' que funciona correctamente
         const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-pro",
+            model: "gemini-pro-latest",
             generationConfig: {
                 responseMimeType: "application/json",
                 temperature: 0.1
