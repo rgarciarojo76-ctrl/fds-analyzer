@@ -46,7 +46,7 @@ export default function DropZone({ onFileSelect, isProcessing }) {
         Asistente virtual para la extracción y análisis de información preventiva en fichas de datos de seguridad
       </h3>
       <p className="landing-description">
-        Este sistema utiliza Inteligencia Artificial para procesar el manual del fabricante,
+        Este sistema utiliza Inteligencia Artificial para procesar la Ficha de Datos de Seguridad,
         identificando automáticamente factores de riesgo, medidas de seguridad, EPIs obligatorios
         y procedimientos de emergencia según la normativa vigente.
       </p>
