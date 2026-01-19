@@ -81,7 +81,7 @@ export default function DropZone({ onFileSelect, isProcessing }) {
               <p className="zone-instruction">Arrastra tu PDF aquí o usa el botón para buscarlo.</p>
 
               <label htmlFor="file-upload" className="btn btn-action">
-                Subir Manual de Instrucciones (PDF)
+                Subir Ficha de Datos de Seguridad (PDF)
               </label>
             </div>
           )}
