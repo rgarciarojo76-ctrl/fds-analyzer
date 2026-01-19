@@ -77,7 +77,7 @@ export default function DropZone({ onFileSelect, isProcessing }) {
           ) : (
             <div className="idle-state">
               <div className="file-icon">📄</div>
-              <h3 className="zone-title">Análisis Automático de Manuales (IA)</h3>
+              <h3 className="zone-title">Análisis Automático de FDS (IA)</h3>
               <p className="zone-instruction">Arrastra tu PDF aquí o usa el botón para buscarlo.</p>
 
               <label htmlFor="file-upload" className="btn btn-action">
