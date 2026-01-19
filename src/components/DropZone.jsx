@@ -231,6 +231,33 @@ export default function DropZone({ onFileSelect, isProcessing }) {
                     50% { opacity: 0.7; }
                     100% { opacity: 1; }
                 }
+
+                /* Mobile Responsiveness */
+                @media (max-width: 768px) {
+                    .landing-container {
+                        padding: 1.5rem 1rem;
+                    }
+
+                    .landing-title {
+                        font-size: 1.5rem;
+                    }
+
+                    .landing-subtitle {
+                        font-size: 1rem;
+                    }
+
+                    .upload-zone {
+                        min-height: 250px;
+                    }
+
+                    .upload-content {
+                        padding: 1.5rem;
+                    }
+                    
+                    .zone-title {
+                        font-size: 1rem;
+                    }
+                }
             `}</style>
     </div>
   );

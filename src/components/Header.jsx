@@ -21,9 +21,9 @@ export default function Header({ onExport, exportDisabled }) {
             {/* Fallback code if image is missing */}
             <div className="logo-placeholder" style={{ display: 'none' }}>DT</div>
           </div>
-          
+
           <div className="branding-separator"></div>
-          
+
           <div className="branding-text">
             <h1 className="main-title">DIRECCIÓN TÉCNICA IA LAB</h1>
             <p className="sub-title">App: Análisis de Manuales – Riesgos PRL</p>
@@ -161,6 +161,59 @@ export default function Header({ onExport, exportDisabled }) {
           min-width: 140px;
           display: flex;
           justify-content: flex-end;
+        }
+
+        /* Mobile Responsiveness */
+        @media (max-width: 768px) {
+          .app-header {
+            height: auto;
+            padding: 0.75rem 0;
+          }
+
+          .header-content {
+            flex-direction: column;
+            gap: 1rem;
+            align-items: stretch;
+          }
+
+          .branding-section {
+            width: 100%;
+            justify-content: center;
+          }
+          
+          .branding-separator {
+             margin: 0 1rem;
+             height: 30px;
+          }
+
+          .branding-text {
+            text-align: left;
+          }
+
+          .main-title {
+            font-size: 1rem;
+          }
+          
+          .sub-title {
+            font-size: 0.65rem;
+          }
+
+          .avisos-section {
+            width: 100%;
+            text-align: center;
+            border-top: 1px dashed var(--color-border);
+            border-bottom: 1px dashed var(--color-border);
+            padding: 0.5rem 0;
+          }
+
+          .actions-section {
+            width: 100%;
+            justify-content: center;
+          }
+          
+          .btn {
+            width: 100%;
+          }
         }
       `}</style>
     </header>
