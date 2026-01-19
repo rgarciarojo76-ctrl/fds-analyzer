@@ -56,8 +56,8 @@ export default async function handler(request) {
             });
         }
 
-        // Usamos el modelo estable gemini-1.5-pro según solicitud de "Gemini PRO"
-        const model = "gemini-1.5-pro";
+        // Usamos gemini-pro (1.0) como fallback de máxima compatibilidad
+        const model = "gemini-pro";
 
         const payload = {
             contents: [
@@ -70,7 +70,8 @@ export default async function handler(request) {
                 }
             ],
             generationConfig: {
-                response_mime_type: "application/json",
+                // gemini-pro 1.0 support response_mime_type only in stricter conditions, so we remove strict json mode config for safety
+                // and rely on the prompt instructions.
                 temperature: 0.1,
             }
         };
