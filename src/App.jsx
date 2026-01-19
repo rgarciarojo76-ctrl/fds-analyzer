@@ -30,7 +30,9 @@ export default function App() {
             });
 
             if (!response.ok) {
-                throw new Error('Error en el servicio de análisis IA');
+                const errorData = await response.json().catch(() => ({}));
+                const errorMessage = errorData.error || `Error ${response.status}: Error en el servicio de análisis IA`;
+                throw new Error(errorMessage);
             }
 
             const result = await response.json();
