@@ -48,13 +48,16 @@ export default async function handler(request) {
             });
         }
 
-        const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+        const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
         if (!apiKey) {
-            return new Response(JSON.stringify({ error: 'Configuración del servidor incompleta: Falta API Key' }), {
+            return new Response(JSON.stringify({ error: 'Configuración del servidor incompleta: Falta GEMINI_API_KEY' }), {
                 status: 500,
                 headers: { 'Content-Type': 'application/json' },
             });
         }
+
+        // Usamos el modelo estable gemini-1.5-pro según solicitud de "Gemini PRO"
+        const model = "gemini-1.5-pro";
 
         const payload = {
             contents: [
@@ -68,14 +71,12 @@ export default async function handler(request) {
             ],
             generationConfig: {
                 response_mime_type: "application/json",
-                temperature: 0.2, // Baja temperatura para ser más determinista y técnico
+                temperature: 0.1,
             }
         };
 
-        // Llamada a la API REST de Google Gemini (Flash por defecto por velocidad/coste, o Pro si se requiere mayor razonamiento)
-        // Usamos gemini-1.5-flash-latest para rapidez en demos, cambiar a pro si es necesario.
         const response = await fetch(
-            `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent?key=${apiKey}`,
+            `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
             {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
