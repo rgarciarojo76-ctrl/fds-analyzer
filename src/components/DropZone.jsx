@@ -40,7 +40,7 @@ export default function DropZone({ onFileSelect, isProcessing }) {
     <div className="landing-container glass-panel">
       {/* Headers del Panel */}
       <h1 className="landing-title">
-        Análisis Manual de Instrucciones de Equipos de Trabajo
+        Análisis Ficha de Datos de Seguridad de Productos Químicos
       </h1>
       <h3 className="landing-subtitle">
         Asistente virtual para la extracción y análisis de información preventiva en manuales de maquinaria
