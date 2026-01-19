@@ -1,44 +1,35 @@
 export const config = {
-    runtime: 'edge', // Using Edge for potentially longer timeouts or streaming if needed, though extracting text is done client side.
+    runtime: 'edge', // Using Edge for potentially longer timeouts or streaming if needed
 };
 
+// Prompt de Sistema Definido por el Usuario (Técnico PRL)
 const SYSTEM_PROMPT = `
 Rol: Eres un experto Técnico en Seguridad Química y PRL (Prevención de Riesgos Laborales).
-Tarea: Analiza la Ficha de Datos de Seguridad (FDS) adjunta y extrae la información para las 12 secciones siguientes.
-Formato: JSON puro. Si no hay información, devuelve ['No especificado'].
-Estilo: Técnico, directo, sin frases introductorias. Cita la página de referencia si es posible (Ref. Pág X).
-Obligatorio: Busca siempre el Nombre del Producto.
+Tarea: Analiza el texto extraído de una Ficha de Datos de Seguridad (FDS) y extrae información crítica para la evaluación de riesgos.
+Formato de Entrada: Texto plano con marcadores de página (--- PÁGINA X ---).
 
-Estructura JSON requerida:
+Requisitos Estrictos de Salida:
+1. Responde ÚNICAMENTE con un objeto JSON válido. NO uses bloques de código markdown (\`\`\`json).
+2. Cada ítem de información extraído DEBE incluir una referencia a la página de donde se extrajo al final de la frase, formato: (Ref. Pág. X).
+3. Si una sección no tiene información, array vacío [] o ["No especificado"].
+4. Busca Iconos de peligro y devuélvelos como códigos ISO 7010 si es posible (ej: ISO_W019) o descripciones claras.
+
+Estructura JSON Objetivo:
 {
-  "productName": "Nombre del producto",
-  "card1": ["Identificación..."],
-  "card2": ["Clasificación..."],
-  "card3": ["Composición..."],
-  "card4": ["Primeros Auxilios..."],
-  "card5": ["Incendios..."],
-  "card6": ["Vertido Accidental..."],
-  "card7": ["Manipulación y Almacenamiento..."],
-  "card8": ["Exposición/EPIs..."],
-  "card9": ["Propiedades Físico-Químicas..."],
-  "card10": ["Estabilidad y Reactividad..."],
-  "card11": ["Toxicología..."],
-  "card12": ["Residuos..."]
+  "productName": "Nombre comercial completo del producto",
+  "card1": ["Identificación de la sustancia/mezcla y de la sociedad/empresa (Ref. Pág. X)", ...],
+  "card2": ["Identificación de los peligros (Ref. Pág. X)", "Frases H y P (Ref. Pág. X)", ...],
+  "card3": ["Composición/información sobre los componentes (Ref. Pág. X)", ...],
+  "card4": ["Primeros auxilios (Ref. Pág. X)", ...],
+  "card5": ["Medidas de lucha contra incendios (Ref. Pág. X)", ...],
+  "card6": ["Medidas en caso de vertido accidental (Ref. Pág. X)", ...],
+  "card7": ["Manipulación y almacenamiento (Ref. Pág. X)", ...],
+  "card8": ["Controles de exposición/protección individual (EPIs) (Ref. Pág. X)", ...],
+  "card9": ["Propiedades físicas y químicas (Ref. Pág. X)", ...],
+  "card10": ["Estabilidad y reactividad (Ref. Pág. X)", ...],
+  "card11": ["Información toxicológica (Ref. Pág. X)", ...],
+  "card12": ["Información ecológica y eliminación (Ref. Pág. X)", ...]
 }
-
-Mapeo de tarjetas:
-card1: Identificación (Sustancia, proveedor, usos, teléfono emergencia).
-card2: Clasificación (CLP, Peligros, frases H/P).
-card3: Composición (Sustancias peligrosas, concentraciones).
-card4: Primeros Auxilios (Inhalación, piel, ojos, ingestión).
-card5: Incendios (Medios extinción, peligros específicos).
-card6: Vertido Accidental (Precauciones, métodos limpieza).
-card7: Manipulación y Almacenamiento (Condiciones, incompatibilidades).
-card8: Exposición/EPIs (Límites, equipos protección).
-card9: Propiedades Físico-Químicas (Estado, pH, inflamación, densidad, etc).
-card10: Estabilidad y Reactividad (Reactividad, condiciones a evitar).
-card11: Toxicología (Efectos agudos/crónicos).
-card12: Residuos (Eliminación, códigos LER).
 `;
 
 export default async function handler(request) {
@@ -49,9 +40,17 @@ export default async function handler(request) {
     try {
         const { text } = await request.json();
 
+        // Validación básica de entrada
+        if (!text || text.length < 50) {
+            return new Response(JSON.stringify({ error: 'El texto extraído es demasiado corto o inválido.' }), {
+                status: 400,
+                headers: { 'Content-Type': 'application/json' },
+            });
+        }
+
         const apiKey = process.env.GOOGLE_GENERATIVE_AI_API_KEY;
         if (!apiKey) {
-            return new Response(JSON.stringify({ error: 'Completar configuración de API Key' }), {
+            return new Response(JSON.stringify({ error: 'Configuración del servidor incompleta: Falta API Key' }), {
                 status: 500,
                 headers: { 'Content-Type': 'application/json' },
             });
@@ -63,15 +62,18 @@ export default async function handler(request) {
                     role: "user",
                     parts: [
                         { text: SYSTEM_PROMPT },
-                        { text: `Aquí está el contenido extraído de la FDS:\n\n${text}` }
+                        { text: `-- INICIO DE DOCUMENTO FDS --\n${text}\n-- FIN DE DOCUMENTO FDS --` }
                     ]
                 }
             ],
             generationConfig: {
-                response_mime_type: "application/json"
+                response_mime_type: "application/json",
+                temperature: 0.2, // Baja temperatura para ser más determinista y técnico
             }
         };
 
+        // Llamada a la API REST de Google Gemini (Flash por defecto por velocidad/coste, o Pro si se requiere mayor razonamiento)
+        // Usamos gemini-1.5-flash-latest para rapidez en demos, cambiar a pro si es necesario.
         const response = await fetch(
             `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
             {
@@ -81,21 +83,34 @@ export default async function handler(request) {
             }
         );
 
-        const data = await response.json();
-
-        if (data.error) {
-            throw new Error(data.error.message);
+        if (!response.ok) {
+            const errorData = await response.text();
+            throw new Error(`Error de Google AI: ${response.status} - ${errorData}`);
         }
 
+        const data = await response.json();
         const generatedText = data.candidates?.[0]?.content?.parts?.[0]?.text;
 
         if (!generatedText) {
-            throw new Error("No se generó respuesta");
+            throw new Error("La IA no generó respuesta válida.");
         }
 
-        // Attempt to parse just to be sure we are valid json before sending back
-        // (Although response_mime_type should handle it)
-        const jsonResponse = JSON.parse(generatedText);
+        // Limpieza de Markdown si la IA ignora la instrucción de JSON puro (backup safety)
+        let cleanJsonString = generatedText;
+        if (cleanJsonString.startsWith('```json')) {
+            cleanJsonString = cleanJsonString.replace(/^```json\s*/, '').replace(/\s*```$/, '');
+        } else if (cleanJsonString.startsWith('```')) {
+            cleanJsonString = cleanJsonString.replace(/^```\s*/, '').replace(/\s*```$/, '');
+        }
+
+        let jsonResponse;
+        try {
+            jsonResponse = JSON.parse(cleanJsonString);
+        } catch (e) {
+            console.error("Error parseando JSON de IA:", e);
+            console.error("Texto recibido:", generatedText);
+            throw new Error("La respuesta de la IA no tiene un formato válido.");
+        }
 
         return new Response(JSON.stringify(jsonResponse), {
             status: 200,
