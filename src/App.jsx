@@ -179,7 +179,46 @@ export default function App() {
 
                 {!data && (
                     <div className="hero-wrapper">
-                        <DropZone onFileSelect={handleFileSelect} isProcessing={isProcessing} />
+                        {error && (
+                            <div className="error-banner">
+                                ⚠️ {error}
+                            </div>
+                        )}
+
+                        {!selectedFile ? (
+                            <DropZone onFileSelect={handleFileSelection} isProcessing={isProcessing} />
+                        ) : (
+                            <div className="file-confirmation glass-panel">
+                                <div className="file-icon-large">📄</div>
+                                <h3>Archivo Seleccionado</h3>
+                                <p className="file-name">{selectedFile.name}</p>
+                                <p className="file-size">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+
+                                <div className="action-buttons">
+                                    <button
+                                        className="btn btn-primary btn-large"
+                                        onClick={startAnalysis}
+                                        disabled={isProcessing}
+                                    >
+                                        {isProcessing ? (
+                                            <>
+                                                <Loader2 className="spin-icon" size={20} /> Analizando...
+                                            </>
+                                        ) : (
+                                            "▶ INICIAR ANÁLISIS"
+                                        )}
+                                    </button>
+
+                                    <button
+                                        className="btn btn-text"
+                                        onClick={() => setSelectedFile(null)}
+                                        disabled={isProcessing}
+                                    >
+                                        Cancelar
+                                    </button>
+                                </div>
+                            </div>
+                        )}
 
                         {/* DEBUG LOG SECTION */}
                         <div className="debug-log">
