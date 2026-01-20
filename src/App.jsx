@@ -90,8 +90,19 @@ export default function App() {
 
             if (!response.ok) {
                 const errorData = await response.json().catch(() => ({}));
-                const errorMessage = errorData.error || `Error ${response.status}: Error en el servicio de análisis IA`;
-                throw new Error(errorMessage);
+                let errorMsg = errorData.error || `Error ${response.status}: Error en el servicio de análisis IA`;
+
+                // Append detailed error info if available using the logs
+                if (errorData.details) {
+                    addLog(`[API DETALLES]: ${typeof errorData.details === 'object' ? JSON.stringify(errorData.details) : errorData.details}`);
+                    // errorMsg += ` (${errorData.details})`; // Keep the UI clean, rely on debug log
+                }
+
+                if (errorData.debugUrl) {
+                    addLog(`[DEBUG URL]: ${errorData.debugUrl}`);
+                }
+
+                throw new Error(errorMsg);
             }
 
             // 3. Process Streamed Response from Edge Function
