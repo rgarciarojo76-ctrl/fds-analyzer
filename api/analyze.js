@@ -48,9 +48,8 @@ export default async function handler(request) {
             return new Response(JSON.stringify({ error: 'Missing API Key' }), { status: 500 });
         }
 
-        // Use gemini-2.5-flash as requested, fallback to 1.5-flash if needed (handled by users or future edits if 2.5 fails)
-        // Standard endpoint for streamGenerateContent
-        const model = 'gemini-2.5-flash';
+        // Reverting to 1.5-flash as 2.5 might be unstable/unavailable causing 504s
+        const model = 'gemini-1.5-flash';
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${apiKey}`;
 
         // Construct the payload for the REST API
