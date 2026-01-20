@@ -7,13 +7,12 @@ import { generatePDF } from './services/report';
 
 export default function App() {
     // Authentication is now handled by Gatekeeper wrapper
-    const [isProcessing, setIsProcessing] = useState(false);
-    const [data, setData] = useState(null);
-    const [progress, setProgress] = useState(0);
+    const [error, setError] = useState(null);
 
     const handleFileSelect = async (file) => {
         setIsProcessing(true);
         setProgress(0);
+        setError(null);
         try {
             // 1. Extract Text locally
             console.log('Starting extraction...');
@@ -68,7 +67,7 @@ export default function App() {
 
         } catch (error) {
             console.error(error);
-            alert('Error procesando el archivo: ' + error.message);
+            setError(error.message || 'Ocurrió un error desconocido procesando el archivo.');
         } finally {
             setIsProcessing(false);
         }
@@ -83,7 +82,7 @@ export default function App() {
 
     const handleExport = () => {
         if (!data) return;
-        generatePDF(data);
+        generatePDF(data, data.productName);
     };
 
     // Card Definitions for mapping
@@ -111,6 +110,11 @@ export default function App() {
             <main className="container main-content">
                 {!data && (
                     <div className="hero-wrapper">
+                        {error && (
+                            <div className="error-banner">
+                                ⚠️ {error}
+                            </div>
+                        )}
                         <DropZone onFileSelect={handleFileSelect} isProcessing={isProcessing} />
                     </div>
                 )}
@@ -182,6 +186,19 @@ export default function App() {
         }
         .btn-secondary:hover {
            background: #eee;
+        }
+
+        .error-banner {
+            background-color: #fee2e2;
+            color: #991b1b;
+            padding: 1rem;
+            border-radius: var(--radius-md);
+            margin-bottom: 1rem;
+            border: 1px solid #f87171;
+            max-width: 600px;
+            width: 100%;
+            text-align: center;
+            font-weight: 500;
         }
       `}</style>
         </div>
