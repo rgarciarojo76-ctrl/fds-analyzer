@@ -13,15 +13,52 @@ export default function App() {
     const [error, setError] = useState(null);
     const [debugLogs, setDebugLogs] = useState([]);
 
+    // Load logs from session storage on mount
+    useEffect(() => {
+        const savedLogs = sessionStorage.getItem('fds_debug_logs');
+        if (savedLogs) {
+            try {
+                setDebugLogs(JSON.parse(savedLogs));
+            } catch (e) {
+                console.error("Error parsing saved logs", e);
+            }
+        }
+
+        // PREVENT DEFAULT BROWSER DRAG/DROP BEHAVIOR GLOBALLY
+        const preventDefault = (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+        };
+
+        window.addEventListener('dragover', preventDefault);
+        window.addEventListener('drop', preventDefault);
+
+        return () => {
+            window.removeEventListener('dragover', preventDefault);
+            window.removeEventListener('drop', preventDefault);
+        };
+    }, []);
+
     const addLog = (msg) => {
-        setDebugLogs(prev => [...prev, `${new Date().toLocaleTimeString()} - ${msg}`]);
+        const timestampedMsg = `${new Date().toLocaleTimeString()} - ${msg}`;
+        setDebugLogs(prev => {
+            const newLogs = [...prev, timestampedMsg];
+            sessionStorage.setItem('fds_debug_logs', JSON.stringify(newLogs));
+            return newLogs;
+        });
+    };
+
+    const clearLogs = () => {
+        setDebugLogs([]);
+        sessionStorage.removeItem('fds_debug_logs');
     };
 
     const handleFileSelect = async (file) => {
         setIsProcessing(true);
         setProgress(0);
         setError(null);
-        setDebugLogs([]); // Clear logs on new attempt
+        setError(null);
+        clearLogs(); // Clear logs on new attempt
         addLog("Iniciando proceso de carga...");
 
         try {
