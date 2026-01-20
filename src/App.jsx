@@ -8,20 +8,30 @@ import { generatePDF } from './services/report';
 export default function App() {
     // Authentication is now handled by Gatekeeper wrapper
     const [error, setError] = useState(null);
+    const [debugLogs, setDebugLogs] = useState([]);
+
+    const addLog = (msg) => {
+        setDebugLogs(prev => [...prev, `${new Date().toLocaleTimeString()} - ${msg}`]);
+    };
 
     const handleFileSelect = async (file) => {
         setIsProcessing(true);
         setProgress(0);
         setError(null);
+        setDebugLogs([]); // Clear logs on new attempt
+        addLog("Iniciando proceso de carga...");
+
         try {
             // 1. Extract Text locally
-            console.log('Starting extraction...');
+            addLog('Llamando a extractTextFromPDF...');
             const text = await extractTextFromPDF(file, (percent) => {
                 setProgress(Math.round(percent));
-            });
-            console.log('Extraction complete, length:', text.length);
+            }, addLog); // Pass log function provided to PDF service
+
+            addLog(`Extracción local completada. Longitud texto: ${text.length}`);
 
             // 2. Send to Gemini API
+            addLog('Enviando texto a API Gemini...');
             const response = await fetch('/api/analyze', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -35,38 +45,37 @@ export default function App() {
             }
 
             // 3. Process Streamed Response from Edge Function
-            // The API returns a direct stream of JSON chunks from Google Gemini
+            addLog('Recibiendo respuesta en streaming...');
             const streamChunks = await response.json();
 
             let accumulatedText = "";
 
             if (Array.isArray(streamChunks)) {
-                // Iterate over chunks to assemble the full text
                 for (const chunk of streamChunks) {
                     if (chunk.candidates && chunk.candidates[0] && chunk.candidates[0].content) {
                         accumulatedText += chunk.candidates[0].content.parts[0].text || "";
                     }
                 }
             } else {
-                // Fallback for non-streamed errors or unexpected formats
                 throw new Error("Formato de respuesta inválido del servidor (Stream esperado)");
             }
 
-            console.log("Full AI Text Reconstructed:", accumulatedText);
+            addLog("Respuesta IA recibida completamente.");
 
             // 4. Clean and Parse Final JSON
             let cleanJsonString = accumulatedText;
-            // Remove Markdown code blocks if present (common in AI responses)
             if (cleanJsonString.trim().startsWith('```')) {
                 cleanJsonString = cleanJsonString.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/\s*```$/, '');
             }
 
+            addLog("Parseando JSON...");
             const result = JSON.parse(cleanJsonString);
-            console.log('Final Parsed Analysis:', result);
+            addLog("Análisis completado con éxito.");
             setData(result);
 
         } catch (error) {
             console.error(error);
+            addLog(`ERROR CAPTURADO: ${error.message}`);
             setError(error.message || 'Ocurrió un error desconocido procesando el archivo.');
         } finally {
             setIsProcessing(false);
@@ -108,14 +117,32 @@ export default function App() {
             <Header onExport={handleExport} exportDisabled={!data} />
 
             <main className="container main-content">
+                {/* Error Banner moved outside conditional rendering for visibility */}
+                {error && (
+                    <div className="container error-container">
+                        <div className="error-banner">
+                            ⚠️ {error}
+                        </div>
+                    </div>
+                )}
+
                 {!data && (
                     <div className="hero-wrapper">
-                        {error && (
-                            <div className="error-banner">
-                                ⚠️ {error}
-                            </div>
-                        )}
                         <DropZone onFileSelect={handleFileSelect} isProcessing={isProcessing} />
+
+                        {/* DEBUG LOG SECTION */}
+                        <div className="debug-log">
+                            <h4>Registro de Actividad (Debug)</h4>
+                            <div className="log-entries">
+                                {debugLogs.length === 0 ? (
+                                    <span className="text-muted">Esperando acción...</span>
+                                ) : (
+                                    debugLogs.map((log, idx) => (
+                                        <div key={idx} className="log-entry">{log}</div>
+                                    ))
+                                )}
+                            </div>
+                        </div>
                     </div>
                 )}
 
@@ -199,6 +226,43 @@ export default function App() {
             width: 100%;
             text-align: center;
             font-weight: 500;
+        }
+
+        .error-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 1rem;
+        }
+
+        .debug-log {
+            margin-top: 2rem;
+            width: 100%;
+            max-width: 600px;
+            background: #f8f9fa;
+            border: 1px solid #ddd;
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            font-family: monospace;
+            font-size: 0.85rem;
+        }
+        
+        .debug-log h4 {
+            margin-top: 0;
+            margin-bottom: 0.5rem;
+            color: var(--color-text-secondary);
+        }
+
+        .log-entries {
+            max-height: 200px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .log-entry {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 2px;
         }
       `}</style>
         </div>

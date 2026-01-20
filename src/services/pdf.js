@@ -4,15 +4,34 @@ import * as pdfjsLib from 'pdfjs-dist';
 // Importamos la URL del worker directamente del paquete build
 import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
-pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
+// Inicializar el worker solo cuando sea necesario o comprobar si ya está
+if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl;
+}
 
-export const extractTextFromPDF = async (file, onProgress) => {
+export const extractTextFromPDF = async (file, onProgress, onDebug) => {
+    const log = (msg) => {
+        console.log(`[PDF Service] ${msg}`);
+        if (onDebug) onDebug(msg);
+    };
+
     try {
+        log('Iniciando extracción de PDF...');
         const arrayBuffer = await file.arrayBuffer();
+        log(`Buffer cargado: ${arrayBuffer.byteLength} bytes`);
 
         // Carga del documento
         const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+
+        loadingTask.onProgress = (progressData) => {
+            if (progressData.total > 0) {
+                const percent = (progressData.loaded / progressData.total) * 100;
+                log(`Cargando documento: ${Math.round(percent)}%`);
+            }
+        };
+
         const pdf = await loadingTask.promise;
+        log(`Documento PDF cargado. Páginas: ${pdf.numPages}`);
 
         const numPages = pdf.numPages;
         let fullText = '';
@@ -20,9 +39,9 @@ export const extractTextFromPDF = async (file, onProgress) => {
         // Iteración por páginas (1-indexed)
         for (let i = 1; i <= numPages; i++) {
             if (onProgress) {
-                // Notificar progreso
                 onProgress((i / numPages) * 100);
             }
+            log(`Procesando página ${i}/${numPages}...`);
 
             const page = await pdf.getPage(i);
             const textContent = await page.getTextContent();
@@ -31,13 +50,14 @@ export const extractTextFromPDF = async (file, onProgress) => {
             const pageText = textContent.items.map((item) => item.str).join(' ');
 
             // INSERCIÓN DE MARCADOR DE PÁGINA EXPLÍCITO
-            // Formato solicitado: --- PÁGINA ${numero_pagina} ---\n${contenido_texto}\n\n
             fullText += `--- PÁGINA ${i} ---\n${pageText}\n\n`;
         }
 
+        log('Extracción completada con éxito.');
         return fullText;
     } catch (error) {
+        log(`ERROR CRÍTICO: ${error.message}`);
         console.error("Error extracting text from PDF:", error);
-        throw new Error("No se pudo leer el archivo PDF. Verifica que sea un PDF válido.");
+        throw new Error(`No se pudo leer el archivo PDF: ${error.message}`);
     }
 };
