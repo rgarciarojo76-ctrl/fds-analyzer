@@ -24,7 +24,8 @@ export default function DropZone({ onFileSelect, isProcessing }) {
       if (file.type === "application/pdf") {
         onFileSelect(file);
       } else {
-        alert("Por favor, sube solo archivos PDF.");
+        console.warn("Intento de subir archivo no PDF");
+        // alert("Por favor, sube solo archivos PDF."); // Removed legacy alert
       }
     }
   }, [onFileSelect]);
