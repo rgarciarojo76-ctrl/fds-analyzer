@@ -54,17 +54,26 @@ export default function App() {
         sessionStorage.removeItem('fds_debug_logs');
     };
 
-    const handleFileSelect = async (file) => {
+    const [selectedFile, setSelectedFile] = useState(null);
+
+    const handleFileSelection = (file) => {
+        setError(null);
+        setSelectedFile(file);
+        addLog(`Archivo seleccionado: ${file.name} (${file.type})`);
+    };
+
+    const startAnalysis = async () => {
+        if (!selectedFile) return;
+
+        const file = selectedFile;
         setIsProcessing(true);
-        setProgress(0);
         setError(null);
-        setError(null);
-        clearLogs(); // Clear logs on new attempt
-        addLog("Iniciando proceso de carga...");
+        clearLogs();
+        addLog("Iniciando análisis manual...");
 
         try {
             // 1. Extract Text locally
-            addLog('Llamando a extractTextFromPDF...');
+            addLog('Llamando a extractTextFromPDF con Worker CDN...');
             const text = await extractTextFromPDF(file, (percent) => {
                 setProgress(Math.round(percent));
             }, addLog); // Pass log function provided to PDF service
@@ -113,6 +122,7 @@ export default function App() {
             const result = JSON.parse(cleanJsonString);
             addLog("Análisis completado con éxito.");
             setData(result);
+            setSelectedFile(null); // Reset selection
 
         } catch (error) {
             console.error(error);
