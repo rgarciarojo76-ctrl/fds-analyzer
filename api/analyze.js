@@ -48,8 +48,8 @@ export default async function handler(request) {
             return new Response(JSON.stringify({ error: 'Missing API Key' }), { status: 500 });
         }
 
-        // Reverting to 1.5-flash as 2.5 might be unstable/unavailable causing 504s
-        const model = 'gemini-1.5-flash';
+        // Switching to specific version gemini-1.5-flash-002 to avoid 404 on generic alias
+        const model = 'gemini-1.5-flash-002';
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${apiKey}`;
 
         // Construct the payload for the REST API
