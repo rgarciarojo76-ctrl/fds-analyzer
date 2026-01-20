@@ -26,22 +26,23 @@ CRITERIOS ESPECÍFICOS POR SECCIÓN:
 - SECCIÓN 10 (Estabilidad): Literal. Riesgo explosión polvo, reacciones peligrosas en proceso, productos descomposición.
 - SECCIÓN 11 (Toxicología): Literal. Vías entrada, efectos graves (Carcinógeno, Mutágeno, STOT), síntomas laborales. Omitir DL50 ratas.
 - SECCIÓN 12 (Ecología/Residuos): Literal. Solo gestión residuos peligrosos y prevención exposición personal. Omitir ecotoxicidad pura.
-`;
+- SECCIÓN 12 (Ecología/Residuos): Literal. Solo gestión residuos peligrosos y prevención exposición personal. Omitir ecotoxicidad pura.
+
 Estructura JSON Objetivo:
 {
     "productName": "Nombre comercial completo del producto",
-        "card1": ["Identificación de la sustancia/mezcla y de la sociedad/empresa (Ref. Pág. X)", ...],
-            "card2": ["Identificación de los peligros (Ref. Pág. X)", "Frases H y P (Ref. Pág. X)", ...],
-                "card3": ["Composición/información sobre los componentes (Ref. Pág. X)", ...],
-                    "card4": ["Protocolo de Actuación Inmediata (Ref. Pág. X)", "Inhalación: ... (Ref. Pág. X)", "Piel: ... (Ref. Pág. X)", "Ojos: ... (Ref. Pág. X)", "Ingestión: ... (Ref. Pág. X)", "Síntomas Alerta: ... (Ref. Pág. X)", "Atención Médica: ... (Ref. Pág. X)"],
-                        "card5": ["Medidas de lucha contra incendios (Ref. Pág. X)", ...],
-                            "card6": ["Medidas en caso de vertido accidental (Ref. Pág. X)", ...],
-                                "card7": ["1. Manipulación Segura: ... (Ref. Pág. X)", "2. Prevención Incendios/Explosiones: ... (Ref. Pág. X)", "3. Higiene Industrial: ... (Ref. Pág. X)", "4. Almacenamiento Seguro: ... (Ref. Pág. X)"],
-                                    "card8": ["Controles de exposición/protección individual (EPIs) (Ref. Pág. X)", ...],
-                                        "card9": ["Propiedades físicas y químicas (Ref. Pág. X)", ...],
-                                            "card10": ["Estabilidad y reactividad (Ref. Pág. X)", ...],
-                                                "card11": ["Información toxicológica (Ref. Pág. X)", ...],
-                                                    "card12": ["Información ecológica y eliminación (Ref. Pág. X)", ...]
+    "card1": ["Identificación de la sustancia/mezcla y de la sociedad/empresa (Ref. Pág. X)", ...],
+    "card2": ["Identificación de los peligros (Ref. Pág. X)", "Frases H y P (Ref. Pág. X)", ...],
+    "card3": ["Composición/información sobre los componentes (Ref. Pág. X)", ...],
+    "card4": ["Protocolo de Actuación Inmediata (Ref. Pág. X)", "Inhalación: ... (Ref. Pág. X)", "Piel: ... (Ref. Pág. X)", "Ojos: ... (Ref. Pág. X)", "Ingestión: ... (Ref. Pág. X)", "Síntomas Alerta: ... (Ref. Pág. X)", "Atención Médica: ... (Ref. Pág. X)"],
+    "card5": ["Medidas de lucha contra incendios (Ref. Pág. X)", ...],
+    "card6": ["Medidas en caso de vertido accidental (Ref. Pág. X)", ...],
+    "card7": ["1. Manipulación Segura: ... (Ref. Pág. X)", "2. Prevención Incendios/Explosiones: ... (Ref. Pág. X)", "3. Higiene Industrial: ... (Ref. Pág. X)", "4. Almacenamiento Seguro: ... (Ref. Pág. X)"],
+    "card8": ["Controles de exposición/protección individual (EPIs) (Ref. Pág. X)", ...],
+    "card9": ["Propiedades físicas y químicas (Ref. Pág. X)", ...],
+    "card10": ["Estabilidad y reactividad (Ref. Pág. X)", ...],
+    "card11": ["Información toxicológica (Ref. Pág. X)", ...],
+    "card12": ["Información ecológica y eliminación (Ref. Pág. X)", ...]
 }
 `;
 
@@ -66,55 +67,55 @@ export default async function handler(request) {
         const model = 'gemini-1.5-flash-001';
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${apiKey}`;
 
-// Construct the payload for the REST API
-const payload = {
-    contents: [{
-        parts: [{
-            text: `${SYSTEM_PROMPT}\n\n-- DOCUMENTO FDS --\n${text}\n-- FIN --`
-        }]
-    }],
-    generationConfig: {
-        responseMimeType: "application/json",
-        // temperature: 0.1 // Optional
-    }
-};
+        // Construct the payload for the REST API
+        const payload = {
+            contents: [{
+                parts: [{
+                    text: `${SYSTEM_PROMPT}\n\n-- DOCUMENTO FDS --\n${text}\n-- FIN --`
+                }]
+            }],
+            generationConfig: {
+                responseMimeType: "application/json",
+                // temperature: 0.1 // Optional
+            }
+        };
 
-const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-        'Content-Type': 'application/json'
-    },
-    body: JSON.stringify(payload)
-});
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
 
-if (!response.ok) {
-    const errorText = await response.text();
-    console.error('Gemini API Error:', errorText);
-    const maskedUrl = url.replace(apiKey, 'HIDDEN_KEY');
-    return new Response(JSON.stringify({
-        error: `Gemini API Error: ${response.status} ${response.statusText}`,
-        details: errorText,
-        debugUrl: maskedUrl
-    }), {
-        status: response.status,
-        headers: { 'Content-Type': 'application/json' }
-    });
-}
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Gemini API Error:', errorText);
+            const maskedUrl = url.replace(apiKey, 'HIDDEN_KEY');
+            return new Response(JSON.stringify({
+                error: `Gemini API Error: ${response.status} ${response.statusText}`,
+                details: errorText,
+                debugUrl: maskedUrl
+            }), {
+                status: response.status,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
 
-// Passthrough the stream directly to the client
-// This keeps the connection alive preventing Vercel timeouts
-return new Response(response.body, {
-    headers: {
-        'Content-Type': 'application/json',
-        'Transfer-Encoding': 'chunked'
-    }
-});
+        // Passthrough the stream directly to the client
+        // This keeps the connection alive preventing Vercel timeouts
+        return new Response(response.body, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Transfer-Encoding': 'chunked'
+            }
+        });
 
     } catch (error) {
-    console.error("Edge Handler Error:", error);
-    return new Response(JSON.stringify({ error: error.message }), {
-        status: 500,
-        headers: { 'Content-Type': 'application/json' }
-    });
-}
+        console.error("Edge Handler Error:", error);
+        return new Response(JSON.stringify({ error: error.message }), {
+            status: 500,
+            headers: { 'Content-Type': 'application/json' }
+        });
+    }
 }
