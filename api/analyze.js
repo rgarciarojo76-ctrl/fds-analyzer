@@ -30,6 +30,11 @@ Reglas Específicas por Sección:
     * Indica CLARAMENTE cuándo NO intervenir.
     * EXCLUYE: Medidas ambientales, referencias cruzadas, procedimientos externos complejos.
     * FORMATO: Procedimiento operativo resumido.
+- SECCIÓN 7 (Manipulación y almacenamiento):
+    * Extrae y reformula SOLO información relevante para PRL, operativa y procedimental.
+    * Estructura OBLIGATORIA en 4 bloques: 1. Manipulación segura (Minimizar exposición, polvo, ventilación), 2. Prevención incendios/explosiones (ATEX, control polvo), 3. Higiene industrial, 4. Almacenamiento seguro.
+    * EXCLUYE: Referencias cruzadas, datos accesorios.
+    * FORMATO: Instrucción preventiva clara.
 
 Estructura JSON Objetivo:
 {
@@ -40,7 +45,7 @@ Estructura JSON Objetivo:
   "card4": ["Protocolo de Actuación Inmediata (Ref. Pág. X)", "Inhalación: ... (Ref. Pág. X)", "Piel: ... (Ref. Pág. X)", "Ojos: ... (Ref. Pág. X)", "Ingestión: ... (Ref. Pág. X)", "Síntomas Alerta: ... (Ref. Pág. X)", "Atención Médica: ... (Ref. Pág. X)"],
   "card5": ["Medidas de lucha contra incendios (Ref. Pág. X)", ...],
   "card6": ["Medidas en caso de vertido accidental (Ref. Pág. X)", ...],
-  "card7": ["Manipulación y almacenamiento (Ref. Pág. X)", ...],
+  "card7": ["1. Manipulación Segura: ... (Ref. Pág. X)", "2. Prevención Incendios/Explosiones: ... (Ref. Pág. X)", "3. Higiene Industrial: ... (Ref. Pág. X)", "4. Almacenamiento Seguro: ... (Ref. Pág. X)"],
   "card8": ["Controles de exposición/protección individual (EPIs) (Ref. Pág. X)", ...],
   "card9": ["Propiedades físicas y químicas (Ref. Pág. X)", ...],
   "card10": ["Estabilidad y reactividad (Ref. Pág. X)", ...],
