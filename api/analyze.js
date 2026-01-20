@@ -42,6 +42,18 @@ SECCIÓN 1(card1): IDENTIFICACIÓN DE LA SUSTANCIA
   * Frases H / P literales masivas o genéricas.
 - FORMATO SUGERIDO ITEMS: "Clasificación: ...", "Efectos Salud: ...", "Vías Críticas: ...", "Nivel Peligro: ...".
 
+    SECCIÓN 3(card3): COMPOSICIÓN / COMPONENTES
+        - Identificar AGENTES QUÍMICOS PELIGROSOS.
+- INCLUIR:
+  * Tipo: Sustancia única o Mezcla.
+  * Componentes Peligrosos: Nombre, Nº CAS, Nº CE.
+  * Concentración / Pureza(solo si es relevante para el riesgo).
+  * Confirmación de ausencia de otros peligrosos(si aplica).
+- EXCLUIR EXPRESAMENTE:
+  * Fórmulas químicas, masa molar.
+  * Datos físico - químicos sin impacto preventivo.
+  * Datos administrativos repetidos.
+
 Estructura JSON Objetivo:
 {
     "productName": "Nombre comercial completo del producto",
