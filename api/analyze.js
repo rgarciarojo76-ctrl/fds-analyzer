@@ -40,6 +40,10 @@ Reglas Específicas por Sección:
     * Extrae: 1. Límites (VLA-ED/EC, DNEL compl.), 2. Controles técnicos (Ventilación), 3. EPIs (Respiratoria: filtro/norma; Ocular; Manos: material/norma).
     * EXCLUYE: PNEC, datos ambientales, controles ambientales puros.
     * FORMATO: Resumen técnico-preventivo.
+- SECCIÓN 9 (Propiedades físicas y químicas):
+    * Extrae SOLO propiedades con relevancia preventiva (Exposición, combustibilidad, explosión, ATEX).
+    * EXCLUYE: pH, ptebullición, densidad, etc. si NO influyen en el riesgo.
+    * FORMATO: Resumen técnico-preventivo conciso.
 
 Estructura JSON Objetivo:
 {
