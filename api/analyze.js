@@ -2,8 +2,8 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 // Configuración de Vercel (Serverless Function)
 export const config = {
-    maxDuration: 60, // Aumentar timeout a 60 segundos (requiere plan Pro para >10s, pero si falla 504 es lo indicado)
-    // runtime: 'nodejs', // Por defecto es nodejs
+    maxDuration: 300, // Aumentar timeout a 300 segundos (5 minutos) para PDFs complejos
+    runtime: 'nodejs', // Asegurar entorno Node.js para soportar larga duración
 };
 
 const SYSTEM_PROMPT = `
