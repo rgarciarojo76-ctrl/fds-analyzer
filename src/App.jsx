@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import DropZone from './components/DropZone';
 import AnalysisCard from './components/AnalysisCard';
@@ -7,6 +7,9 @@ import { generatePDF } from './services/report';
 
 export default function App() {
     // Authentication is now handled by Gatekeeper wrapper
+    const [isProcessing, setIsProcessing] = useState(false); // Restore state
+    const [progress, setProgress] = useState(0); // Restore state
+    const [data, setData] = useState(null); // Restore state 
     const [error, setError] = useState(null);
     const [debugLogs, setDebugLogs] = useState([]);
 
