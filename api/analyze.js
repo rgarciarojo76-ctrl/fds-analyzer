@@ -54,6 +54,11 @@ Reglas Específicas por Sección:
     * Incluye: Vías exposición (inhalación/piel), efectos graves (cancerígeno, toxicidad repetida), síntomas laborales.
     * EXCLUYE: DL50 animales, mutagenicidad/repro irrelevante, ingestión improbable.
     * FORMATO: Resumen técnico-preventivo para vigilancia de la salud.
+- SECCIÓN 12 (Información ecológica y residuos):
+    * Extrae SOLO info relevante para manejo seguro de residuos y prevención exposición (PRL).
+    * Incluye: Clasificación residuos peligrosos, medidas seguridad manejo/envases, prevención liberación accidental.
+    * EXCLUYE: Toxicidad acuática (LC50/EC50), bioacumulación, reciclado complejo.
+    * FORMATO: Resumen técnico-preventivo para gestión interna residuos.
 
 Estructura JSON Objetivo:
 {
