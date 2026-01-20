@@ -19,6 +19,11 @@ Reglas Específicas por Sección (CRITERIOS DE SELECCIÓN):
 - SECCIÓN 1 (Identificación de la sustancia):
     * Extrae LITERALMENTE: Nombre/Forma, IDs (CAS/CE/REACH/CLP), Usos funcionales, Tlf Emergencia (España), Proveedor (Solo Nombre/País).
     * Excluye: Direcciones completas, emails, webs, datos admin.
+- SECCIÓN 2 (Identificación de los peligros):
+    * Extrae: Clasificación CLP (Salud Laboral: Carc, Sens, STOT), Frases H (Daño a trabajador), Órganos diana, Pictogramas.
+    * SINTETIZA: Nivel de peligrosidad (Grave/Crítico).
+    * Excluye: Peligros ambientales puros, PBT irrelevantes, listas completas de H/P (solo relevantes).
+    * FORMATO: Resumen técnico interpretado para evaluación de riesgos.
 - SECCIÓN 4 (Primeros Auxilios):
     * Extrae LITERALMENTE frases sobre actuación inmediata personal no sanitario.
     * Selecciona: Medidas generales, vías de exposición, síntomas, atención médica. "No existen tratamientos" si aplica.
