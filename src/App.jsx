@@ -35,8 +35,35 @@ export default function App() {
                 throw new Error(errorMessage);
             }
 
-            const result = await response.json();
-            console.log('Analysis result:', result);
+            // 3. Process Streamed Response from Edge Function
+            // The API returns a direct stream of JSON chunks from Google Gemini
+            const streamChunks = await response.json();
+
+            let accumulatedText = "";
+
+            if (Array.isArray(streamChunks)) {
+                // Iterate over chunks to assemble the full text
+                for (const chunk of streamChunks) {
+                    if (chunk.candidates && chunk.candidates[0] && chunk.candidates[0].content) {
+                        accumulatedText += chunk.candidates[0].content.parts[0].text || "";
+                    }
+                }
+            } else {
+                // Fallback for non-streamed errors or unexpected formats
+                throw new Error("Formato de respuesta inválido del servidor (Stream esperado)");
+            }
+
+            console.log("Full AI Text Reconstructed:", accumulatedText);
+
+            // 4. Clean and Parse Final JSON
+            let cleanJsonString = accumulatedText;
+            // Remove Markdown code blocks if present (common in AI responses)
+            if (cleanJsonString.trim().startsWith('```')) {
+                cleanJsonString = cleanJsonString.replace(/^```json\s*/, '').replace(/^```\s*/, '').replace(/\s*```$/, '');
+            }
+
+            const result = JSON.parse(cleanJsonString);
+            console.log('Final Parsed Analysis:', result);
             setData(result);
 
         } catch (error) {

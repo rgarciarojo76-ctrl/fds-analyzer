@@ -1,21 +1,17 @@
-import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Configuración de Vercel (Serverless Function)
 export const config = {
-    maxDuration: 300, // Aumentar timeout a 300 segundos (5 minutos) para PDFs complejos
-    runtime: 'nodejs', // Asegurar entorno Node.js para soportar larga duración
+    runtime: 'edge', // Critical for bypassing serverless timeouts
 };
 
 const SYSTEM_PROMPT = `
-Rol: Eres un experto Técnico en Seguridad Química y PRL (Prevención de Riesgos Laborales).
-Tarea: Analiza el texto extraído de una Ficha de Datos de Seguridad (FDS) y extrae información crítica para la evaluación de riesgos.
-Formato de Entrada: Texto plano con marcadores de página (--- PÁGINA X ---).
+Rol: Técnico Superior en Prevención de Riesgos Laborales (PRL).
+Contexto: Normativa REACH y CLP.
+Tarea: Analiza el texto extraído de una Ficha de Datos de Seguridad (FDS) y extrae información crítica.
 
-Requisitos Estrictos de Salida:
-1. Responde ÚNICAMENTE con un objeto JSON válido. NO uses bloques de código markdown (\`\`\`json).
-2. Cada ítem de información extraído DEBE incluir una referencia a la página de donde se extrajo al final de la frase, formato: (Ref. Pág. X).
-3. Si una sección no tiene información, array vacío [] o ["No especificado"].
-4. Busca Iconos de peligro y devuélvelos como códigos ISO 7010 si es posible (ej: ISO_W019) o descripciones claras.
+Requisitos Estrictos:
+1. Salida: ÚNICAMENTE un objeto JSON válido.
+2. Citas: CADA string extraído DEBE terminar con la referencia de página en la que aparece, formato: "(Ref. Pág. X)".
+3. Si no hay información: array vacío [] o ["No especificado"].
 
 Estructura JSON Objetivo:
 {
@@ -43,69 +39,64 @@ export default async function handler(request) {
     try {
         const { text } = await request.json();
 
-        if (!text || text.length < 50) {
-            return new Response(JSON.stringify({ error: 'El texto extraído es demasiado corto o inválido.' }), {
-                status: 400,
-                headers: { 'Content-Type': 'application/json' },
-            });
+        if (!text) {
+            return new Response(JSON.stringify({ error: 'No text provided' }), { status: 400 });
         }
 
         const apiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
         if (!apiKey) {
-            return new Response(JSON.stringify({ error: 'Configuración del servidor incompleta: Falta GEMINI_API_KEY' }), {
-                status: 500,
-                headers: { 'Content-Type': 'application/json' },
+            return new Response(JSON.stringify({ error: 'Missing API Key' }), { status: 500 });
+        }
+
+        // Use gemini-2.5-flash as requested, fallback to 1.5-flash if needed (handled by users or future edits if 2.5 fails)
+        // Standard endpoint for streamGenerateContent
+        const model = 'gemini-2.5-flash';
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${apiKey}`;
+
+        // Construct the payload for the REST API
+        const payload = {
+            contents: [{
+                parts: [{
+                    text: `${SYSTEM_PROMPT}\n\n-- DOCUMENTO FDS --\n${text}\n-- FIN --`
+                }]
+            }],
+            generationConfig: {
+                responseMimeType: "application/json",
+                // temperature: 0.1 // Optional
+            }
+        };
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
+        });
+
+        if (!response.ok) {
+            const errorText = await response.text();
+            console.error('Gemini API Error:', errorText);
+            return new Response(JSON.stringify({ error: `Gemini API Error: ${response.status}`, details: errorText }), {
+                status: response.status,
+                headers: { 'Content-Type': 'application/json' }
             });
         }
 
-        // Inicializar SDK
-        const genAI = new GoogleGenerativeAI(apiKey);
-        // Usamos gemini-1.5-flash por ser mucho más rápido y evitar timeouts (504)
-        const model = genAI.getGenerativeModel({
-            model: "gemini-1.5-flash",
-            generationConfig: {
-                responseMimeType: "application/json",
-                temperature: 0.1
+        // Passthrough the stream directly to the client
+        // This keeps the connection alive preventing Vercel timeouts
+        return new Response(response.body, {
+            headers: {
+                'Content-Type': 'application/json',
+                'Transfer-Encoding': 'chunked'
             }
         });
 
-        const prompt = SYSTEM_PROMPT + "\n\n-- INICIO DE DOCUMENTO FDS --\n" + text + "\n-- FIN DE DOCUMENTO FDS --";
-
-        const result = await model.generateContent(prompt);
-        const response = await result.response;
-        const generatedText = response.text();
-
-        if (!generatedText) {
-            throw new Error("La IA no generó respuesta válida.");
-        }
-
-        // Limpieza de Markdown por seguridad (aunque responseMimeType debería evitarlo)
-        let cleanJsonString = generatedText;
-        if (cleanJsonString.startsWith('```json')) {
-            cleanJsonString = cleanJsonString.replace(/^```json\s*/, '').replace(/\s*```$/, '');
-        } else if (cleanJsonString.startsWith('```')) {
-            cleanJsonString = cleanJsonString.replace(/^```\s*/, '').replace(/\s*```$/, '');
-        }
-
-        let jsonResponse;
-        try {
-            jsonResponse = JSON.parse(cleanJsonString);
-        } catch (e) {
-            console.error("Error parseando JSON de IA:", e);
-            console.error("Texto recibido:", generatedText);
-            throw new Error("La respuesta de la IA no tiene un formato válido: " + generatedText.substring(0, 50) + "...");
-        }
-
-        return new Response(JSON.stringify(jsonResponse), {
-            status: 200,
-            headers: { 'Content-Type': 'application/json' },
-        });
-
     } catch (error) {
-        console.error("API Error:", error);
-        return new Response(JSON.stringify({ error: error.message || 'Error desconocido en el servidor' }), {
+        console.error("Edge Handler Error:", error);
+        return new Response(JSON.stringify({ error: error.message }), {
             status: 500,
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json' }
         });
     }
 }
