@@ -48,8 +48,8 @@ export default async function handler(request) {
             return new Response(JSON.stringify({ error: 'Missing API Key' }), { status: 500 });
         }
 
-        // Switching to specific version gemini-1.5-flash-002 to avoid 404 on generic alias
-        const model = 'gemini-1.5-flash-002';
+        // Switching to pinned GA version gemini-1.5-flash-001 to ensure availability
+        const model = 'gemini-1.5-flash-001';
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${apiKey}`;
 
         // Construct the payload for the REST API
