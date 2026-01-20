@@ -24,6 +24,12 @@ Reglas Específicas por Sección (CRITERIOS DE SELECCIÓN):
     * SINTETIZA: Nivel de peligrosidad (Grave/Crítico).
     * Excluye: Peligros ambientales puros, PBT irrelevantes, listas completas de H/P (solo relevantes).
     * FORMATO: Resumen técnico interpretado para evaluación de riesgos.
+- SECCIÓN 3 (Composición/componentes):
+    * Identifica: Sustancia vs Mezcla.
+    * Extrae: Nombre componente, CAS, CE, Concentración (si relevante).
+    * Confirma: Ausencia de otros peligros si se indica.
+    * Excluye: Fórmulas, masas molares, datos físico-químicos irrelevantes.
+    * FORMATO: Resumen claro para inventario de sustancias.
 - SECCIÓN 4 (Primeros Auxilios):
     * Extrae LITERALMENTE frases sobre actuación inmediata personal no sanitario.
     * Selecciona: Medidas generales, vías de exposición, síntomas, atención médica. "No existen tratamientos" si aplica.
