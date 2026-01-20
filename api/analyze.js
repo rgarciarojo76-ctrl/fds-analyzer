@@ -49,6 +49,11 @@ Reglas Específicas por Sección:
     * Prioriza: Riesgo explosión polvo, estabilidad normal, reacciones peligrosas en el puesto, condiciones a evitar (polvo+ignición), productos descomposición.
     * EXCLUYE: Química teórica, listas exhaustivas no presentes.
     * FORMATO: Resumen operativo y preventivo.
+- SECCIÓN 11 (Información toxicológica):
+    * Extrae SOLO info relevante para PRL (Vigilancia Salud).
+    * Incluye: Vías exposición (inhalación/piel), efectos graves (cancerígeno, toxicidad repetida), síntomas laborales.
+    * EXCLUYE: DL50 animales, mutagenicidad/repro irrelevante, ingestión improbable.
+    * FORMATO: Resumen técnico-preventivo para vigilancia de la salud.
 
 Estructura JSON Objetivo:
 {
