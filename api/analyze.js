@@ -35,6 +35,11 @@ Reglas Específicas por Sección:
     * Estructura OBLIGATORIA en 4 bloques: 1. Manipulación segura (Minimizar exposición, polvo, ventilación), 2. Prevención incendios/explosiones (ATEX, control polvo), 3. Higiene industrial, 4. Almacenamiento seguro.
     * EXCLUYE: Referencias cruzadas, datos accesorios.
     * FORMATO: Instrucción preventiva clara.
+- SECCIÓN 8 (Controles de exposición/EPIs):
+    * Prioridad: Control exposición trabajador (Normativa España).
+    * Extrae: 1. Límites (VLA-ED/EC, DNEL compl.), 2. Controles técnicos (Ventilación), 3. EPIs (Respiratoria: filtro/norma; Ocular; Manos: material/norma).
+    * EXCLUYE: PNEC, datos ambientales, controles ambientales puros.
+    * FORMATO: Resumen técnico-preventivo.
 
 Estructura JSON Objetivo:
 {
