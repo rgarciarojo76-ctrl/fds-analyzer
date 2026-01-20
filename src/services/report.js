@@ -130,40 +130,24 @@ export const generatePDF = async (data, customSections = null) => {
         doc.setLineWidth(0.1);
 
         // Helper to clean content lines (Remove Page Refs if desired, or keep them small)
-        // User requested exact template. The template cleans them. 
-        // Let's clean them to look like the report, but maybe keep them if critical for FDS?
-        // The user said "usa el mismo tipo de letra, ... adaptando en texto".
-        // The reference code REMOVES refs: .replace(/\(Ref\..*?\)/gi, '')
-        // Use the same logic for visual consistency.
         const cleanContentLine = (text) => {
-            // Optional: If we want to keep refs, comment this replace out.
-            // Given "exact template" usually implies visual cleanliness, I will clean them 
-            // OR put them in a smaller font? Reference code removes them entirely. 
-            // I'll stick to Reference code behavior (Remove) for "Template Exactness", 
-            // UNLESS the FDS nature requires them.
-            // Decision: Keep them but maybe they get cleaned by getLines logic if I paste it exactly.
-            // I will modify the regex to keep them but maybe less intrusive? 
-            // No, I'll allow them to persist if the user didn't ask to remove. 
-            // BUT, I'm pasting the reference code logic.
-            // The reference code logic HAS: `replace(/\(Ref\..*?\)/gi, '')`.
-            // I will comment that out to preserve data integrity for FDS (Ref pages are important).
-            return text
-                // .replace(/\(Ref\..*?\)/gi, '') // DISABLED to keep citations
-                // .replace(/\(Pág\..*?\)/gi, '')
-                .trim();
+            if (text === null || text === undefined) return "";
+            return String(text).trim(); // Force string to avoid .trim() errors on numbers/objects
         };
 
         // Helper to get wrapped lines and CLEAN them
         const getLines = (section) => {
             if (!section || !section.data || !section.data.content) return [];
 
-            // The data structure in FDS App is Array of Strings.
-            // The reference app expects `section.data.content` to be Array of Strings.
-            // My mapping above `data: { content: data.card1 }` ensures compatibility.
+            // Handle various data types safely
+            let sourceContent = section.data.content;
+            let rawLines = [];
 
-            const rawLines = Array.isArray(section.data.content)
-                ? section.data.content.map(line => cleanContentLine(line))
-                : [cleanContentLine(section.data.content || "")];
+            if (Array.isArray(sourceContent)) {
+                rawLines = sourceContent.map(line => cleanContentLine(line));
+            } else {
+                rawLines = [cleanContentLine(sourceContent)];
+            }
 
             // Wrap text
             const wrapped = [];
@@ -176,8 +160,13 @@ export const generatePDF = async (data, customSections = null) => {
                         textToWrap = "• " + textToWrap;
                     }
 
-                    const splitLines = doc.splitTextToSize(textToWrap, (colWidth - 8)); // -8 for padding
-                    splitLines.forEach(l => wrapped.push(l));
+                    try {
+                        const splitLines = doc.splitTextToSize(textToWrap, (colWidth - 8)); // -8 for padding
+                        splitLines.forEach(l => wrapped.push(l));
+                    } catch (err) {
+                        console.warn("Error wrapping text:", textToWrap, err);
+                        wrapped.push(textToWrap); // Fallback
+                    }
                 }
             });
             return wrapped;
@@ -261,9 +250,14 @@ export const generatePDF = async (data, customSections = null) => {
 
     } catch (error) {
         console.error("PDF Generation Failed:", error);
-        alert("Error al generar el PDF. Revisa la consola.");
+        alert("Error al generar el PDF: " + error.message);
     }
 };
+
+const isSingleSection = (colW, margin) => {
+    // Rough check if colW is essentially full width
+    return colW > 150;
+}
 
 // Helper function to draw a row (or segment of a row)
 const drawRowSegment = (doc, startY, lLines, rLines, lSec, rSec, color, colW, margin, headH, lineH) => {
@@ -334,8 +328,3 @@ const drawRowSegment = (doc, startY, lLines, rLines, lSec, rSec, color, colW, ma
         });
     }
 };
-
-const isSingleSection = (colW, margin) => {
-    // Rough check if colW is essentially full width
-    return colW > 150;
-}
