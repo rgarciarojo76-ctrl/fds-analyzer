@@ -24,6 +24,12 @@ Reglas Específicas por Sección:
     * Incluye: Riesgos específicos graves (ej: explosión), medios extinción (sí/no), advertencias clave (evacuación, aislamiento).
     * EXCLUYE: Instrucciones técnicas profesionales, temas ambientales menores.
     * FORMATO: Resumen operativo y preventivo.
+- SECCIÓN 6 (Medidas en caso de vertido accidental):
+    * Extrae SOLO información relevante para seguridad del trabajador (Riesgos: polvo, explosión, contacto).
+    * Incluye: Actuación inmediata (Aislamiento, EPI obligatorio, evitar polvo), métodos seguros de limpieza y gestión inicial.
+    * Indica CLARAMENTE cuándo NO intervenir.
+    * EXCLUYE: Medidas ambientales, referencias cruzadas, procedimientos externos complejos.
+    * FORMATO: Procedimiento operativo resumido.
 
 Estructura JSON Objetivo:
 {
