@@ -48,9 +48,9 @@ export default async function handler(request) {
             return new Response(JSON.stringify({ error: 'Missing API Key' }), { status: 500 });
         }
 
-        // Switching to 'gemini-1.5-pro' (Robust, widely available)
-        // Flash variants are returning 404. Edge Streaming will handle the extra latency of Pro.
-        const model = 'gemini-1.5-pro';
+        // Switching to legacy 'gemini-pro' (1.0) which is universally available.
+        // 1.5 variants are consistently 404ing on this REST endpoint configuration.
+        const model = 'gemini-pro';
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${apiKey}`;
 
         // Construct the payload for the REST API
