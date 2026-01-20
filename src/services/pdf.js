@@ -2,7 +2,10 @@ import * as pdfjsLib from 'pdfjs-dist';
 
 // Configuración del Worker para Vite
 // Importamos la URL del worker directamente del paquete build
-import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+// import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
+
+// USAR CDN PARA EVITAR PROBLEMAS DE BUNDLING CON VITE
+const workerUrl = "https://unpkg.com/pdfjs-dist@4.8.69/build/pdf.worker.min.mjs";
 
 // Inicializar el worker solo cuando sea necesario o comprobar si ya está
 if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {

@@ -1,3 +1,4 @@
+import { Loader2 } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import DropZone from './components/DropZone';
@@ -303,6 +304,59 @@ export default function App() {
         .log-entry {
             border-bottom: 1px solid #eee;
             padding-bottom: 2px;
+        }
+
+        .file-confirmation {
+            padding: 2rem;
+            text-align: center;
+            max-width: 500px;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .file-icon-large {
+            font-size: 4rem;
+        }
+
+        .file-name {
+            font-weight: 700;
+            font-size: 1.2rem;
+            color: var(--color-text);
+            word-break: break-all;
+        }
+
+        .file-size {
+            color: var(--color-text-secondary);
+            font-family: monospace;
+        }
+
+        .action-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            width: 100%;
+            margin-top: 1rem;
+        }
+
+        .btn-large {
+            padding: 1rem;
+            font-size: 1.1rem;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .btn-text {
+            background: none;
+            border: none;
+            color: var(--color-text-secondary);
+            text-decoration: underline;
+            cursor: pointer;
         }
       `}</style>
         </div>
