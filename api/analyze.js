@@ -19,6 +19,11 @@ Reglas Específicas por Sección:
     * Indica expresamente si "No existen tratamientos especiales".
     * EXCLUYE: Redacciones genéricas, instrucciones clínicas avanzadas, vías no previsibles.
     * FORMATO: Protocolo operativo breve y claro (listas cortas).
+- SECCIÓN 5 (Medidas de lucha contra incendios):
+    * Extrae SOLO lo relevante para personal del centro/plan de emergencias (NO bomberos).
+    * Incluye: Riesgos específicos graves (ej: explosión), medios extinción (sí/no), advertencias clave (evacuación, aislamiento).
+    * EXCLUYE: Instrucciones técnicas profesionales, temas ambientales menores.
+    * FORMATO: Resumen operativo y preventivo.
 
 Estructura JSON Objetivo:
 {
