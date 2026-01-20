@@ -16,6 +16,9 @@ Requisitos Estrictos:
 2. Citas: CADA string extraído DEBE terminar con la referencia de página en la que aparece, formato: "(Ref. Pág. X)".
 
 Reglas Específicas por Sección (CRITERIOS DE SELECCIÓN):
+- SECCIÓN 1 (Identificación de la sustancia):
+    * Extrae LITERALMENTE: Nombre/Forma, IDs (CAS/CE/REACH/CLP), Usos funcionales, Tlf Emergencia (España), Proveedor (Solo Nombre/País).
+    * Excluye: Direcciones completas, emails, webs, datos admin.
 - SECCIÓN 4 (Primeros Auxilios):
     * Extrae LITERALMENTE frases sobre actuación inmediata personal no sanitario.
     * Selecciona: Medidas generales, vías de exposición, síntomas, atención médica. "No existen tratamientos" si aplica.
