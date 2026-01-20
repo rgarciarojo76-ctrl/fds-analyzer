@@ -27,6 +27,21 @@ SECCIÓN 1(card1): IDENTIFICACIÓN DE LA SUSTANCIA
   * Direcciones postales completas, emails, fax, webs.
   * Datos administrativos / comerciales sin impacto preventivo.
 
+    SECCIÓN 2(card2): IDENTIFICACIÓN DE PELIGROS
+        - Generar un RESUMEN TÉCNICO INTERPRETADO para PRL(No copiar / pegar listas).
+- INCLUIR:
+  * Clasificación CLP de salud laboral(Carc., Sens., STOT, etc.).
+  * Frases H seleccionadas(solo impacto al trabajador).
+  * Órganos diana y daños esperados(lenguaje preventivo).
+  * Pictogramas CLP relevantes.
+  * Advertencias específicas(ej.explosión polvo).
+  * Nivel de peligrosidad sintetizado(ej. "Riesgo grave para la salud").
+- EXCLUIR EXPRESAMENTE:
+  * Peligros ambientales.
+  * PBT / mPmB sin impacto laboral.
+  * Frases H / P literales masivas o genéricas.
+- FORMATO SUGERIDO ITEMS: "Clasificación: ...", "Efectos Salud: ...", "Vías Críticas: ...", "Nivel Peligro: ...".
+
 Estructura JSON Objetivo:
 {
     "productName": "Nombre comercial completo del producto",
