@@ -44,6 +44,11 @@ Reglas Específicas por Sección:
     * Extrae SOLO propiedades con relevancia preventiva (Exposición, combustibilidad, explosión, ATEX).
     * EXCLUYE: pH, ptebullición, densidad, etc. si NO influyen en el riesgo.
     * FORMATO: Resumen técnico-preventivo conciso.
+- SECCIÓN 10 (Estabilidad y reactividad):
+    * Extrae SOLO info relevante para seguridad y emergencias.
+    * Prioriza: Riesgo explosión polvo, estabilidad normal, reacciones peligrosas en el puesto, condiciones a evitar (polvo+ignición), productos descomposición.
+    * EXCLUYE: Química teórica, listas exhaustivas no presentes.
+    * FORMATO: Resumen operativo y preventivo.
 
 Estructura JSON Objetivo:
 {
