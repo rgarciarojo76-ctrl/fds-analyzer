@@ -62,8 +62,8 @@ export default async function handler(request) {
             return new Response(JSON.stringify({ error: 'Missing API Key' }), { status: 500 });
         }
 
-        // Reverting to 1.5-flash as 2.5 might be unstable/unavailable causing 504s
-        const model = 'gemini-1.5-flash';
+        // Trying explicit version alias for stability
+        const model = 'gemini-1.5-flash-latest';
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${apiKey}`;
 
 // Construct the payload for the REST API
@@ -90,7 +90,12 @@ const response = await fetch(url, {
 if (!response.ok) {
     const errorText = await response.text();
     console.error('Gemini API Error:', errorText);
-    return new Response(JSON.stringify({ error: `Gemini API Error: ${response.status}`, details: errorText }), {
+    const maskedUrl = url.replace(apiKey, 'HIDDEN_KEY');
+    return new Response(JSON.stringify({
+        error: `Gemini API Error: ${response.status} ${response.statusText}`,
+        details: errorText,
+        debugUrl: maskedUrl
+    }), {
         status: response.status,
         headers: { 'Content-Type': 'application/json' }
     });
