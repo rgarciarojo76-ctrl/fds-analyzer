@@ -148,8 +148,8 @@ export const generatePDF = async (data, customSections = null) => {
             // The reference code logic HAS: `replace(/\(Ref\..*?\)/gi, '')`.
             // I will comment that out to preserve data integrity for FDS (Ref pages are important).
             return text
-                // .replace(/\(Ref\..*?\)/gi, '') // DISABLED to keep citations
-                // .replace(/\(Pág\..*?\)/gi, '')
+                .replace(/\(Ref\..*?\)/gi, '')
+                .replace(/\(Pág\..*?\)/gi, '')
                 .trim();
         };
 
