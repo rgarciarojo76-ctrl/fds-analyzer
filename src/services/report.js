@@ -72,16 +72,22 @@ export const generatePDF = async (data, customSections = null) => {
         doc.setFont("helvetica", "bold");
         doc.text("ANÁLISIS DE FICHAS DE DATOS DE SEGURIDAD", pageWidth - margin, 18, { align: 'right' });
 
+        // Helper to fix broken spacing artifacts (e.g. "t e x t o" -> "texto")
+        const fixBrokenSpacing = (text) => {
+            if (!text) return text;
+            return text.replace(/\b([a-zA-Z])\s+(?=[a-zA-Z]\b)/g, '$1');
+        };
+
         // Product Name Logic (Simplified for FDS)
         let productName = "PRODUCTO QUÍMICO";
 
         if (data && data.productName) {
-            productName = data.productName.toUpperCase();
+            productName = fixBrokenSpacing(data.productName.toUpperCase());
         } else if (data && data.card1 && data.card1.length > 0) {
             // Fallback: Try to find name in card1 if productName matches default
             const firstLine = data.card1[0];
             if (firstLine && firstLine.length < 100) {
-                productName = firstLine.replace(/\(Ref\..*?\)/g, "").trim().toUpperCase();
+                productName = fixBrokenSpacing(firstLine.replace(/\(Ref\..*?\)/g, "").trim().toUpperCase());
             }
         }
 
@@ -135,22 +141,19 @@ export const generatePDF = async (data, customSections = null) => {
         // The user said "usa el mismo tipo de letra, ... adaptando en texto".
         // The reference code REMOVES refs: .replace(/\(Ref\..*?\)/gi, '')
         // Use the same logic for visual consistency.
+        // Helper to fix broken spacing artifacts (e.g. "t e x t o" -> "texto")
+        const fixBrokenSpacing = (text) => {
+            if (!text) return text;
+            return text.replace(/\b([a-zA-Z])\s+(?=[a-zA-Z]\b)/g, '$1');
+        };
+
         const cleanContentLine = (text) => {
-            // Optional: If we want to keep refs, comment this replace out.
-            // Given "exact template" usually implies visual cleanliness, I will clean them 
-            // OR put them in a smaller font? Reference code removes them entirely. 
-            // I'll stick to Reference code behavior (Remove) for "Template Exactness", 
-            // UNLESS the FDS nature requires them.
-            // Decision: Keep them but maybe they get cleaned by getLines logic if I paste it exactly.
-            // I will modify the regex to keep them but maybe less intrusive? 
-            // No, I'll allow them to persist if the user didn't ask to remove. 
-            // BUT, I'm pasting the reference code logic.
-            // The reference code logic HAS: `replace(/\(Ref\..*?\)/gi, '')`.
-            // I will comment that out to preserve data integrity for FDS (Ref pages are important).
-            return text
+            let cleaned = text
                 .replace(/\(Ref\..*?\)/gi, '')
                 .replace(/\(Pág\..*?\)/gi, '')
                 .trim();
+
+            return fixBrokenSpacing(cleaned);
         };
 
         // Helper to get wrapped lines and CLEAN them
