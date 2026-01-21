@@ -5,7 +5,7 @@ import * as pdfjsLib from 'pdfjs-dist';
 // import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url';
 
 // USAR CDN PARA EVITAR PROBLEMAS DE BUNDLING CON VITE
-const workerUrl = "https://unpkg.com/pdfjs-dist@4.8.69/build/pdf.worker.min.mjs";
+const workerUrl = "https://unpkg.com/pdfjs-dist@5.4.530/build/pdf.worker.min.mjs";
 
 // Inicializar el worker solo cuando sea necesario o comprobar si ya está
 if (!pdfjsLib.GlobalWorkerOptions.workerSrc) {
