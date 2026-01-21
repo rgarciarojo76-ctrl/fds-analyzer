@@ -63,8 +63,8 @@ export default async function handler(request) {
             return new Response(JSON.stringify({ error: 'Missing API Key' }), { status: 500 });
         }
 
-        // Reverting to standard safe alias
-        const model = 'gemini-1.5-flash';
+        // Using 'latest' alias which is strictly supported by v1beta REST API
+        const model = 'gemini-1.5-flash-latest';
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${apiKey}`;
 
         // Construct the payload for the REST API
