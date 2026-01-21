@@ -63,8 +63,8 @@ export default async function handler(request) {
             return new Response(JSON.stringify({ error: 'Missing API Key' }), { status: 500 });
         }
 
-        // Using 'latest' alias which is strictly supported by v1beta REST API
-        const model = 'gemini-1.5-flash-latest';
+        // Reverting to standard 'gemini-1.5-flash'. If 404, diagnostic will list valid ones.
+        const model = 'gemini-1.5-flash';
         const url = `https://generativelanguage.googleapis.com/v1beta/models/${model}:streamGenerateContent?key=${apiKey}`;
 
         // Construct the payload for the REST API
@@ -92,10 +92,31 @@ export default async function handler(request) {
             const errorText = await response.text();
             console.error('Gemini API Error:', errorText);
             const maskedUrl = url.replace(apiKey, 'HIDDEN_KEY');
+
+            let availableModels = null;
+
+            // Self-Diagnostic: If 404, try to list available models
+            if (response.status === 404) {
+                try {
+                    const listModelsUrl = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
+                    const listResponse = await fetch(listModelsUrl);
+                    if (listResponse.ok) {
+                        const listData = await listResponse.json();
+                        // Filter specifically for "generateContent" supported models and map to names
+                        availableModels = listData.models
+                            .filter(m => m.supportedGenerationMethods && m.supportedGenerationMethods.includes('generateContent'))
+                            .map(m => m.name);
+                    }
+                } catch (e) {
+                    console.error("Failed to list models:", e);
+                }
+            }
+
             return new Response(JSON.stringify({
                 error: `Gemini API Error: ${response.status} ${response.statusText}`,
                 details: errorText,
-                debugUrl: maskedUrl
+                debugUrl: maskedUrl,
+                availableModels: availableModels
             }), {
                 status: response.status,
                 headers: { 'Content-Type': 'application/json' }

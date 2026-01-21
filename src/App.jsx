@@ -102,6 +102,10 @@ export default function App() {
                     addLog(`[DEBUG URL]: ${errorData.debugUrl}`);
                 }
 
+                if (errorData.availableModels) {
+                    addLog(`[MODELOS DISPONIBLES]: ${JSON.stringify(errorData.availableModels, null, 2)}`);
+                }
+
                 throw new Error(errorMsg);
             }
 
