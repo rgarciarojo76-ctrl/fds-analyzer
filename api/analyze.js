@@ -15,7 +15,20 @@ REGLAS GENERALES:
 4. CORRECCIÓN DE FORMATO: Si el texto original tiene espacios rotos (ej. "t e x t o"), CORREGIRLO a "texto" para asegurar legibilidad normal.
 
 CRITERIOS ESPECÍFICOS POR SECCIÓN:
-- SECCIÓN 1 (Identificación): Extrae Nombre, IDs (CAS/CE/CLP/REACH), Usos funcionales, Tlf Emergencia (ES), Proveedor (Nombre/País). Omitir datos administrativos (emails, direcciones).
+- SECCIÓN 1 (Identificación) [ESTRICTO]: EXTRACCIÓN LITERAL Y ESTRUCTURADA. No inventar. No reformular. No fusionar.
+  Campos OBLIGATORIOS (si aparecen):
+  1. Identificador de producto.
+  2. Número de artículo.
+  3. Número CAS.
+  4. Número CE.
+  5. Número de índice CLP.
+  6. Número de registro REACH.
+  7. Usos pertinentes identificados.
+  8. Usos desaconsejados.
+  9. Datos del proveedor de la ficha de datos de seguridad (Nombre completo, Dirección completa, Teléfono, Email).
+  10. Proveedor / importador en España (si figura).
+  11. Teléfono de emergencia.
+  FORMATO: "Campo: Valor literal (Ref. Pág. X)". Un campo por línea.
 - SECCIÓN 2 (Peligros): EXCEPCIÓN -> INTERPRETAR Y SINTETIZAR. Extrae Clasificación (Salud), Frases H (Trabajador), Órganos, Pictogramas. Evalúa Nivel Peligrosidad (Grave/Crítico).
 - SECCIÓN 3 (Composición): Identifica Sustancia/Mezcla. Extrae Componentes peligrosos, CAS/CE, Concentración.
 - SECCIÓN 4 (Primeros Auxilios): Literal. Actuación inmediata personal no sanitario (Inhalación, Piel, Ojos, Ingestión). Síntomas y atención médica.
