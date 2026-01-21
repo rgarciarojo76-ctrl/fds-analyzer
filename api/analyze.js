@@ -12,6 +12,7 @@ REGLAS GENERALES:
 1. NO inventar. Mantener redacción exacta de la FDS (salvo Sección 2).
 2. Citar página al final de CADA string: "(Ref. Pág. X)".
 3. Salida: ÚNICAMENTE JSON válido.
+4. CORRECCIÓN DE FORMATO: Si el texto original tiene espacios rotos (ej. "t e x t o"), CORREGIRLO a "texto" para asegurar legibilidad normal.
 
 CRITERIOS ESPECÍFICOS POR SECCIÓN:
 - SECCIÓN 1 (Identificación): Extrae Nombre, IDs (CAS/CE/CLP/REACH), Usos funcionales, Tlf Emergencia (ES), Proveedor (Nombre/País). Omitir datos administrativos (emails, direcciones).
