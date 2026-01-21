@@ -73,22 +73,26 @@ export const generatePDF = async (data, customSections = null) => {
         doc.text("ANÁLISIS DE FICHAS DE DATOS DE SEGURIDAD", pageWidth - margin, 18, { align: 'right' });
 
         // Helper to fix broken spacing artifacts (e.g. "t e x t o" -> "texto")
-        // Helper to fix broken spacing artifacts (e.g. "t e x t o" -> "texto")
-        // SAFE VERSION: Only collapses ISOLATED single letters.
-        // Avoids merging "Identificador de" -> "Identificadorde".
-        // Protects single letter words: y, o, a, e, u.
+        // REVISED SAFE VERSION: Collapses sequences of 3+ isolated letters.
+        // Fixes "N I Q U E L" -> "NÍQUEL"
+        // Fixes "I d e n t i f i c a d o r" -> "Identificador"
+        // Ignores "y o" (2 chars), "a E" (2 chars).
+        // Trade-off: Might merge "A y B" -> "AyB", but preserves readability better than broken headers.
         const fixBrokenSpacing = (text) => {
             if (!text) return text;
-            // Regex explanation:
-            // (^|[\s])       -> Must start with space or start of line (Anchor)
-            // (?!y|Y|o|O|a|A|e|E|u|U) -> Negative lookahead for valid single words
-            // ([a-zA-Z\u00C0-\u00FF]) -> The single letter to capture
-            // \s+            -> The spacing to remove
-            // (?=[a-zA-Z\u00C0-\u00FF](?:[\s]|$)) -> Lookahead: Next char must also be a single letter (followed by space/end)
 
-            // Note: This logic prevents "Identificador de" because 'r' is preceded by 'o' (not space).
-            // It fixes "N I Q U E L" because 'N' is start/space, 'I' is space-flanked.
-            return text.replace(/(^|[\s])(?![yYoOaAeEuU]\s)([a-zA-Z\u00C0-\u00FF])\s+(?=[a-zA-Z\u00C0-\u00FF](?:[\s]|$))/g, '$1$2');
+            // Regex explanation:
+            // (^|[\s])       -> Anchor (Start or Space)
+            // (              -> Capture Group 2 (The Chain)
+            //   (?:[a-zA-Z\u00C0-\u00FF]\s+){2,}  -> 2 or more repetitions of "Letter + Space" (Result = 3 items total with next line)
+            //   [a-zA-Z\u00C0-\u00FF]             -> Final Letter
+            // )
+            // (?=[\s]|$)     -> Lookahead Anchor (Space or End)
+
+            // Replaces ' N I Q U E L ' -> ' NÍQUEL '
+            return text.replace(/(^|[\s])((?:[a-zA-Z\u00C0-\u00FF]\s+){2,}[a-zA-Z\u00C0-\u00FF])(?=[\s]|$)/g, (match, prefix, chain) => {
+                return prefix + chain.replace(/\s+/g, '');
+            });
         };
 
         // Product Name Logic (Simplified for FDS)
