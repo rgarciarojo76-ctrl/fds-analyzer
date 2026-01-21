@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Loader2, CloudUpload, FileText } from 'lucide-react';
+import { Loader2, UploadCloud, FileText } from 'lucide-react';
 
 export default function DropZone({ onFileSelect, isProcessing }) {
   const [dragActive, setDragActive] = useState(false);
@@ -74,7 +74,7 @@ export default function DropZone({ onFileSelect, isProcessing }) {
           ) : (
             <div className="idle-state">
               <div className="icon-wrapper">
-                <CloudUpload size={40} className="text-gradient" />
+                <UploadCloud size={40} className="text-gradient" />
               </div>
               <h3 className="zone-title">Sube tu Ficha de Seguridad</h3>
               <p className="zone-instruction">Arrastra tu PDF aquí o haz clic para explorar</p>
