@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, CloudUpload, FileText } from 'lucide-react';
 
 export default function DropZone({ onFileSelect, isProcessing }) {
   const [dragActive, setDragActive] = useState(false);
@@ -41,15 +41,11 @@ export default function DropZone({ onFileSelect, isProcessing }) {
     <div className="landing-container glass-panel">
       {/* Headers del Panel */}
       <h1 className="landing-title">
-        Análisis Ficha de Datos de Seguridad de Productos Químicos
+        <span className="gradient-text">FDS Analyzer</span>
+        <span className="subtitle-block">Gestión Inteligente de Seguridad Química</span>
       </h1>
-      <h3 className="landing-subtitle">
-        Asistente virtual para la extracción y análisis de información preventiva en fichas de datos de seguridad
-      </h3>
       <p className="landing-description">
-        Este sistema utiliza Inteligencia Artificial para procesar la Ficha de Datos de Seguridad,
-        identificando automáticamente factores de riesgo, medidas de seguridad, EPIs obligatorios
-        y procedimientos de emergencia según la normativa vigente.
+        Tu asistente experto en normativa y prevención. Arrastra tu documento para un análisis instantáneo de riesgos y medidas preventivas.
       </p>
 
       {/* Zona de Carga (Drag & Drop) */}
@@ -71,18 +67,20 @@ export default function DropZone({ onFileSelect, isProcessing }) {
         <div className="upload-content">
           {isProcessing ? (
             <div className="processing-state">
-              <Loader2 size={40} className="spin-icon text-primary" />
-              <h3 className="processing-title">Analizando documento con Gemini...</h3>
-              <p className="processing-subtitle">Extrayendo texto y procesando riesgos...</p>
+              <Loader2 size={48} className="spin-icon text-primary" />
+              <h3 className="processing-title">Analizando Documento...</h3>
+              <p className="processing-subtitle">Nuestra IA está extrayendo datos críticos</p>
             </div>
           ) : (
             <div className="idle-state">
-              <div className="file-icon">📄</div>
-              <h3 className="zone-title">Análisis Automático de FDS (IA)</h3>
-              <p className="zone-instruction">Arrastra tu PDF aquí o usa el botón para buscarlo.</p>
+              <div className="icon-wrapper">
+                <CloudUpload size={40} className="text-gradient" />
+              </div>
+              <h3 className="zone-title">Sube tu Ficha de Seguridad</h3>
+              <p className="zone-instruction">Arrastra tu PDF aquí o haz clic para explorar</p>
 
               <label htmlFor="file-upload" className="btn btn-action">
-                Subir Ficha de Datos de Seguridad (PDF)
+                Seleccionar Archivo (PDF)
               </label>
             </div>
           )}
@@ -91,63 +89,81 @@ export default function DropZone({ onFileSelect, isProcessing }) {
 
       <style>{`
                 .landing-container {
-                    padding: 3rem 2rem;
-                    max-width: 800px;
+                    padding: 4rem 2rem;
+                    max-width: 900px;
                     width: 100%;
                     text-align: center;
                     display: flex;
                     flex-direction: column;
                     align-items: center;
-                    gap: 1.5rem;
+                    gap: 2rem;
                 }
 
                 .landing-title {
-                    color: var(--color-primary);
-                    font-size: 2rem;
-                    font-weight: 700;
-                    line-height: 1.2;
-                    max-width: 90%;
+                    display: flex;
+                    flex-direction: column;
+                    gap: 0.5rem;
+                    line-height: 1.1;
+                    margin-bottom: 1rem;
                 }
 
-                .landing-subtitle {
+                .gradient-text {
+                    font-size: 3.5rem;
+                    font-weight: 800;
+                    background: linear-gradient(135deg, var(--color-primary) 0%, #3b82f6 100%);
+                    -webkit-background-clip: text;
+                    -webkit-text-fill-color: transparent;
+                    letter-spacing: -1px;
+                }
+
+                .subtitle-block {
+                    font-size: 1.5rem;
                     color: var(--color-text);
-                    font-size: 1.1rem;
                     font-weight: 500;
-                    margin-top: -0.5rem;
+                    letter-spacing: -0.5px;
                 }
 
                 .landing-description {
                     color: var(--color-text-secondary);
-                    font-size: 0.95rem;
-                    max-width: 80%;
+                    font-size: 1.1rem;
+                    max-width: 600px;
                     line-height: 1.6;
                     margin-bottom: 1rem;
                 }
 
-                /* Zona de Carga */
+                /* Zona de Carga Premium */
                 .upload-zone {
                     width: 100%;
-                    max-width: 600px;
-                    min-height: 300px;
-                    background-color: #f8fbff;
-                    border: 2px dashed var(--color-border-dashed);
-                    border-radius: var(--radius-lg);
+                    max-width: 640px;
+                    min-height: 360px;
+                    background: rgba(255, 255, 255, 0.8);
+                    backdrop-filter: blur(12px);
+                    border: 2px dashed rgba(0, 0, 0, 0.1);
+                    border-radius: 24px;
                     display: flex;
                     align-items: center;
                     justify-content: center;
-                    transition: all 0.2s ease;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
                     position: relative;
+                    box-shadow: 0 20px 40px -12px rgba(0, 0, 0, 0.1);
+                }
+
+                .upload-zone:hover {
+                    border-color: var(--color-primary);
+                    background: rgba(255, 255, 255, 0.95);
+                    transform: translateY(-4px);
+                    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.15);
                 }
 
                 .upload-zone.active {
                     border-color: var(--color-primary);
-                    background-color: #f0f9ff;
-                    transform: scale(1.01);
+                    background: #f0f9ff;
+                    transform: scale(1.02);
                 }
                 
                 .upload-zone.processing {
-                    border: none;
-                    background: transparent;
+                    border-style: solid;
+                    border-color: transparent;
                 }
 
                 #file-upload {
@@ -156,7 +172,7 @@ export default function DropZone({ onFileSelect, isProcessing }) {
 
                 .upload-content {
                     width: 100%;
-                    padding: 2rem;
+                    padding: 3rem;
                 }
 
                 /* Estado Idle */
@@ -164,39 +180,50 @@ export default function DropZone({ onFileSelect, isProcessing }) {
                     display: flex;
                     flex-direction: column;
                     align-items: center;
-                    gap: 1rem;
+                    gap: 1.25rem;
                 }
 
-                .file-icon {
-                    font-size: 2.5rem;
-                    opacity: 0.5;
-                    margin-bottom: 0.5rem;
+                .icon-wrapper {
+                   background: linear-gradient(135deg, #e0f2fe 0%, #f0f9ff 100%);
+                   width: 80px;
+                   height: 80px;
+                   border-radius: 24px;
+                   display: flex;
+                   align-items: center;
+                   justify-content: center;
+                   margin-bottom: 0.5rem;
+                   color: var(--color-primary);
                 }
 
                 .zone-title {
-                    color: var(--color-primary);
+                    color: var(--color-text);
                     font-weight: 700;
-                    font-size: 1.1rem;
+                    font-size: 1.25rem;
                     margin: 0;
                 }
 
                 .zone-instruction {
                     color: var(--color-text-secondary);
                     margin: 0;
-                    font-size: 0.95rem;
+                    font-size: 1rem;
                 }
 
                 .btn-action {
+                    background: var(--color-primary);
+                    color: white;
+                    font-weight: 600;
+                    padding: 1rem 2rem;
+                    border-radius: 12px;
+                    box-shadow: 0 4px 14px 0 rgba(0, 118, 255, 0.39);
+                    transition: all 0.2s ease;
+                    cursor: pointer;
                     margin-top: 1rem;
-                    background-color: var(--color-white);
-                    border: 1px solid var(--color-primary);
-                    color: var(--color-primary);
-                    font-weight: 700;
-                    padding: 0.8rem 1.5rem;
                 }
 
                 .btn-action:hover {
-                    background-color: #eff6ff;
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 20px rgba(0, 118, 255, 0.23);
+                    background: #0060df; /* Darker Blue */
                 }
 
                 /* Estado Processing */
@@ -204,59 +231,54 @@ export default function DropZone({ onFileSelect, isProcessing }) {
                     display: flex;
                     flex-direction: column;
                     align-items: center;
-                    gap: 1rem;
+                    gap: 1.5rem;
                 }
 
                 .processing-title {
-                    color: var(--color-primary); /* Azul */
-                    font-size: 1.25rem;
-                    font-weight: 600;
-                    animation: pulse 2s infinite;
+                    color: var(--color-primary);
+                    font-size: 1.5rem;
+                    font-weight: 700;
                 }
 
                 .processing-subtitle {
                     color: var(--color-text-secondary);
+                    font-size: 1.1rem;
                 }
 
                 .spin-icon {
-                    animation: spin 2s linear infinite;
+                    animation: spin 3s linear infinite;
                 }
 
                 @keyframes spin {
                     from { transform: rotate(0deg); }
                     to { transform: rotate(360deg); }
                 }
-                
-                @keyframes pulse {
-                    0% { opacity: 1; }
-                    50% { opacity: 0.7; }
-                    100% { opacity: 1; }
-                }
 
                 /* Mobile Responsiveness */
                 @media (max-width: 768px) {
                     .landing-container {
-                        padding: 1.5rem 1rem;
+                        padding: 2rem 1rem;
                     }
 
-                    .landing-title {
-                        font-size: 1.5rem;
+                    .gradient-text {
+                        font-size: 2.5rem;
                     }
-
-                    .landing-subtitle {
-                        font-size: 1rem;
+                    
+                    .subtitle-block {
+                        font-size: 1.1rem;
                     }
 
                     .upload-zone {
-                        min-height: 250px;
+                        min-height: 280px;
                     }
 
                     .upload-content {
                         padding: 1.5rem;
                     }
                     
-                    .zone-title {
-                        font-size: 1rem;
+                    .btn-action {
+                        width: 100%;
+                        text-align: center;
                     }
                 }
             `}</style>
