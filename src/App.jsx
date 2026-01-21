@@ -539,6 +539,7 @@ export default function App() {
         .custom-scrollbar::-webkit-scrollbar-thumb:hover {
             background: #555; 
         }
+      /* Final Style Block */
       `}</style>
         </div>
     );
