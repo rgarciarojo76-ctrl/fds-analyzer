@@ -157,7 +157,7 @@ export default function App() {
 
     const handleExport = () => {
         if (!data) return;
-        generatePDF(data, data.productName);
+        generatePDF(data);
     };
 
     // Card Definitions for mapping
