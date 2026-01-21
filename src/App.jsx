@@ -269,6 +269,7 @@ export default function App() {
                                     content={data[def.key]}
                                     isCritical={criticalSections.includes(def.key)}
                                     onUpdate={handleUpdateCard}
+                                    productName={data.productName}
                                 />
                             ))}
                         </div>
