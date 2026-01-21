@@ -73,14 +73,22 @@ export const generatePDF = async (data, customSections = null) => {
         doc.text("ANÁLISIS DE FICHAS DE DATOS DE SEGURIDAD", pageWidth - margin, 18, { align: 'right' });
 
         // Helper to fix broken spacing artifacts (e.g. "t e x t o" -> "texto")
-        // Updated to support Spanish accents (ÁÉÍÓÚñ) and multiple spaces
+        // Helper to fix broken spacing artifacts (e.g. "t e x t o" -> "texto")
+        // SAFE VERSION: Only collapses ISOLATED single letters.
+        // Avoids merging "Identificador de" -> "Identificadorde".
+        // Protects single letter words: y, o, a, e, u.
         const fixBrokenSpacing = (text) => {
             if (!text) return text;
-            // Match any letter (including accents) followed by spaces, LOOKING AHEAD for another letter
-            // This collapses "N   Í   Q   U   E   L" -> "NÍQUEL"
-            // \p{L} matches any unicode letter. Requires 'u' flag, but JS regex support varies in older envs.
-            // Using range for safety: [a-zA-Z\u00C0-\u00FF]
-            return text.replace(/([a-zA-Z\u00C0-\u00FF])\s+(?=[a-zA-Z\u00C0-\u00FF])/g, '$1');
+            // Regex explanation:
+            // (^|[\s])       -> Must start with space or start of line (Anchor)
+            // (?!y|Y|o|O|a|A|e|E|u|U) -> Negative lookahead for valid single words
+            // ([a-zA-Z\u00C0-\u00FF]) -> The single letter to capture
+            // \s+            -> The spacing to remove
+            // (?=[a-zA-Z\u00C0-\u00FF](?:[\s]|$)) -> Lookahead: Next char must also be a single letter (followed by space/end)
+
+            // Note: This logic prevents "Identificador de" because 'r' is preceded by 'o' (not space).
+            // It fixes "N I Q U E L" because 'N' is start/space, 'I' is space-flanked.
+            return text.replace(/(^|[\s])(?![yYoOaAeEuU]\s)([a-zA-Z\u00C0-\u00FF])\s+(?=[a-zA-Z\u00C0-\u00FF](?:[\s]|$))/g, '$1$2');
         };
 
         // Product Name Logic (Simplified for FDS)
