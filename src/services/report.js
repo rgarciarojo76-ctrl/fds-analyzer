@@ -141,11 +141,7 @@ export const generatePDF = async (data, customSections = null) => {
         // The user said "usa el mismo tipo de letra, ... adaptando en texto".
         // The reference code REMOVES refs: .replace(/\(Ref\..*?\)/gi, '')
         // Use the same logic for visual consistency.
-        // Helper to fix broken spacing artifacts (e.g. "t e x t o" -> "texto")
-        const fixBrokenSpacing = (text) => {
-            if (!text) return text;
-            return text.replace(/\b([a-zA-Z])\s+(?=[a-zA-Z]\b)/g, '$1');
-        };
+
 
         const cleanContentLine = (text) => {
             let cleaned = text
