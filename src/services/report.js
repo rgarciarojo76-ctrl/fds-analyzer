@@ -73,9 +73,14 @@ export const generatePDF = async (data, customSections = null) => {
         doc.text("ANÁLISIS DE FICHAS DE DATOS DE SEGURIDAD", pageWidth - margin, 18, { align: 'right' });
 
         // Helper to fix broken spacing artifacts (e.g. "t e x t o" -> "texto")
+        // Updated to support Spanish accents (ÁÉÍÓÚñ) and multiple spaces
         const fixBrokenSpacing = (text) => {
             if (!text) return text;
-            return text.replace(/\b([a-zA-Z])\s+(?=[a-zA-Z]\b)/g, '$1');
+            // Match any letter (including accents) followed by spaces, LOOKING AHEAD for another letter
+            // This collapses "N   Í   Q   U   E   L" -> "NÍQUEL"
+            // \p{L} matches any unicode letter. Requires 'u' flag, but JS regex support varies in older envs.
+            // Using range for safety: [a-zA-Z\u00C0-\u00FF]
+            return text.replace(/([a-zA-Z\u00C0-\u00FF])\s+(?=[a-zA-Z\u00C0-\u00FF])/g, '$1');
         };
 
         // Product Name Logic (Simplified for FDS)

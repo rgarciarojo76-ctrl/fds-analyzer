@@ -1,4 +1,4 @@
-import { Loader2 } from 'lucide-react';
+import { Loader2, FileText, Terminal } from 'lucide-react';
 import React, { useState, useEffect } from 'react';
 import Header from './components/Header';
 import DropZone from './components/DropZone';
@@ -203,47 +203,67 @@ export default function App() {
                         {!selectedFile ? (
                             <DropZone onFileSelect={handleFileSelection} isProcessing={isProcessing} />
                         ) : (
-                            <div className="file-confirmation glass-panel">
-                                <div className="file-icon-large">📄</div>
-                                <h3>Archivo Seleccionado</h3>
-                                <p className="file-name">{selectedFile.name}</p>
-                                <p className="file-size">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                            <div className="file-confirmation fade-in">
+                                <div className="file-icon-wrapper">
+                                    <FileText size={40} className="text-primary" />
+                                </div>
+
+                                <div className="file-details">
+                                    <span className="file-status-label">Documento preparado</span>
+                                    <h3 className="file-name">{selectedFile.name}</h3>
+                                    <p className="file-size">
+                                        {(selectedFile.size / 1024 / 1024).toFixed(2)} MB • PDF Document
+                                    </p>
+                                </div>
 
                                 <div className="action-buttons">
                                     <button
-                                        className="btn btn-primary btn-large"
+                                        className="btn btn-primary btn-large btn-glow"
                                         onClick={startAnalysis}
                                         disabled={isProcessing}
                                     >
                                         {isProcessing ? (
                                             <>
-                                                <Loader2 className="spin-icon" size={20} /> Analizando...
+                                                <Loader2 className="spin-icon" size={20} /> ANALIZANDO...
                                             </>
                                         ) : (
-                                            "▶ INICIAR ANÁLISIS"
+                                            "INICIAR ANÁLISIS"
                                         )}
                                     </button>
 
                                     <button
-                                        className="btn btn-text"
+                                        className="btn btn-text-subtle"
                                         onClick={() => setSelectedFile(null)}
                                         disabled={isProcessing}
                                     >
-                                        Cancelar
+                                        Cancelar operación
                                     </button>
                                 </div>
                             </div>
                         )}
 
-                        {/* DEBUG LOG SECTION */}
-                        <div className="debug-log">
-                            <h4>Registro de Actividad (Debug)</h4>
-                            <div className="log-entries">
+                        {/* DEBUG LOG SECTION - TERMINAL STYLE */}
+                        <div className="debug-log-terminal">
+                            <div className="terminal-header">
+                                <div className="terminal-title">
+                                    <Terminal size={12} strokeWidth={3} />
+                                    <span>SYSTEM_DIAGNOSTICS</span>
+                                </div>
+                                <div className="terminal-controls">
+                                    <span className="dot red"></span>
+                                    <span className="dot yellow"></span>
+                                    <span className="dot green"></span>
+                                </div>
+                            </div>
+                            <div className="log-entries-terminal custom-scrollbar">
                                 {debugLogs.length === 0 ? (
-                                    <span className="text-muted">Esperando acción...</span>
+                                    <span className="log-line text-muted">{'>'} System ready. Waiting for input...</span>
                                 ) : (
                                     debugLogs.map((log, idx) => (
-                                        <div key={idx} className="log-entry">{log}</div>
+                                        <div key={idx} className="log-line">
+                                            <span className="log-time">[{log.split(' - ')[0]}]</span>
+                                            <span className="log-msg">{log.split(' - ').slice(1).join(' - ')}</span>
+                                        </div>
                                     ))
                                 )}
                             </div>
@@ -340,62 +360,129 @@ export default function App() {
             margin-bottom: 1rem;
         }
 
-        .debug-log {
-            margin-top: 2rem;
+        .debug-log-terminal {
+            margin-top: 3rem;
             width: 100%;
             max-width: 600px;
-            background: #f8f9fa;
-            border: 1px solid #ddd;
-            border-radius: var(--radius-md);
-            padding: 1rem;
-            font-family: monospace;
-            font-size: 0.85rem;
-        }
-        
-        .debug-log h4 {
-            margin-top: 0;
-            margin-bottom: 0.5rem;
-            color: var(--color-text-secondary);
+            background: #1e1e1e;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            overflow: hidden;
+            font-family: 'JetBrains Mono', 'Fira Code', monospace;
+            font-size: 0.75rem;
+            border: 1px solid #333;
         }
 
-        .log-entries {
-            max-height: 200px;
+        .terminal-header {
+            background: #2d2d2d;
+            padding: 8px 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #333;
+        }
+
+        .terminal-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            color: #888;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .terminal-controls {
+            display: flex;
+            gap: 6px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+        .dot.red { background: #ff5f56; }
+        .dot.yellow { background: #ffbd2e; }
+        .dot.green { background: #27c93f; }
+
+        .log-entries-terminal {
+            height: 200px;
             overflow-y: auto;
+            padding: 12px;
             display: flex;
             flex-direction: column;
-            gap: 0.25rem;
+            gap: 4px;
         }
 
-        .log-entry {
-            border-bottom: 1px solid #eee;
-            padding-bottom: 2px;
+        .log-line {
+            line-height: 1.4;
+            color: #d4d4d4;
+            display: flex;
+            gap: 8px;
         }
 
+        .log-time {
+            color: #569cd6;
+            min-width: 70px;
+        }
+
+        .log-msg {
+            color: #ce9178;
+        }
+
+        /* PREMIUM FILE CARD */
         .file-confirmation {
-            padding: 2rem;
+            background: white;
+            padding: 2.5rem 3rem;
             text-align: center;
-            max-width: 500px;
+            max-width: 480px;
             width: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 1rem;
+            box-shadow: 0 20px 40px -10px rgba(0,0,0,0.1), 0 0 0 1px rgba(0,0,0,0.03);
+            border-radius: 24px;
         }
 
-        .file-icon-large {
-            font-size: 4rem;
+        .file-icon-wrapper {
+            background: #f0f9ff;
+            width: 80px;
+            height: 80px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 1.5rem;
+            color: var(--color-primary);
+        }
+
+        .file-status-label {
+            display: block;
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 1px;
+            font-weight: 700;
+            color: #a0a0a0;
+            margin-bottom: 0.5rem;
         }
 
         .file-name {
+            font-size: 1.25rem;
             font-weight: 700;
-            font-size: 1.2rem;
-            color: var(--color-text);
-            word-break: break-all;
+            color: #1a1a1a;
+            margin: 0 0 0.5rem 0;
+            line-height: 1.3;
+            max-width: 300px;
+            text-overflow: ellipsis;
+            overflow: hidden;
+            white-space: nowrap;
         }
 
         .file-size {
-            color: var(--color-text-secondary);
-            font-family: monospace;
+            font-size: 0.85rem;
+            color: #666;
+            margin: 0;
+            font-weight: 500;
         }
 
         .action-buttons {
@@ -403,27 +490,57 @@ export default function App() {
             flex-direction: column;
             gap: 1rem;
             width: 100%;
-            margin-top: 1rem;
+            margin-top: 2rem;
         }
 
         .btn-large {
-            padding: 1rem;
-            font-size: 1.1rem;
-            width: 100%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
+            padding: 0.9rem;
+            font-size: 0.95rem;
+            letter-spacing: 0.5px;
+            font-weight: 600;
+            border-radius: 12px;
+            text-transform: uppercase;
+        }
+        
+        .btn-glow {
+            box-shadow: 0 4px 14px 0 rgba(0, 118, 255, 0.39);
+            transition: all 0.2s ease;
+        }
+        
+        .btn-glow:hover {
+            box-shadow: 0 6px 20px rgba(0, 118, 255, 0.23);
+            transform: translateY(-1px);
         }
 
-        .btn-text {
+        .btn-text-subtle {
             background: none;
             border: none;
-            color: var(--color-text-secondary);
-            text-decoration: underline;
+            color: #888;
+            font-size: 0.85rem;
             cursor: pointer;
+            transition: color 0.2s;
         }
-      `}</style>
+        
+        .btn-text-subtle:hover {
+            color: #333;
+        }
+
+        /* SCROLLBAR FOR TERMINAL */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #1e1e1e; 
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #444; 
+            border-radius: 3px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #555; 
+        }
+      `
+                `}</style>
         </div>
     );
 }
