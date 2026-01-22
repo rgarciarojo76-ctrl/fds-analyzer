@@ -223,9 +223,12 @@ export const generatePDF = async (data, customSections = null) => {
                 const commonKeys = [
                     "ingestión", "inhalación", "piel", "ojos", "contacto",
                     "medidas", "síntomas", "efectos", "nota", "protección",
-                    "instrucciones", "almacenamiento", "usos", "identificador", "nombre"
+                    "instrucciones", "almacenamiento", "usos", "identificador", "nombre",
+                    "número", "cas", "ce", "teléfono", "proveedor", "fórmula", "masa",
+                    "frases", "pictogramas", "palabra", "nivel", "peligro", "advertencias",
+                    "componente", "composición"
                 ];
-                const startsWithKey = commonKeys.some(key => line.toLowerCase().startsWith(key + ":"));
+                const startsWithKey = commonKeys.some(key => line.toLowerCase().startsWith(key + ":") || line.toLowerCase().startsWith(key + " "));
 
                 if (isBullet || isField || startsWithKey) {
                     mergedLines.push(line);
