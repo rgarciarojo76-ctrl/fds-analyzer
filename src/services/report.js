@@ -118,10 +118,6 @@ export const generatePDF = async (data, customSections = null) => {
             const cleaned = cleanTextCommon(text);
 
             // Sentence Case: First char upper, rest lower.
-            // Exception: Keep existing acronyms? 
-            // User requested: "primera letra de la frase en mayuscula y el resto en minuscula"
-            // This implies strict sentence case.
-
             if (cleaned.length < 2) return cleaned.toUpperCase();
 
             return cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase();
@@ -185,45 +181,69 @@ export const generatePDF = async (data, customSections = null) => {
         doc.setDrawColor(...borderColor);
         doc.setLineWidth(0.1);
 
-        const cleanContentLine = (text) => {
-            let cleaned = text
-                .replace(/\(Ref\..*?\)/gi, '')
-                .replace(/\(Pág\..*?\)/gi, '')
-                .trim();
-
-            return cleanForBody(cleaned);
-        };
-
         // Helper to get wrapped lines and CLEAN them
         const getLines = (section) => {
             if (!section || !section.data || !section.data.content) return [];
 
-            // The data structure in FDS App is Array of Strings.
-            // The reference app expects `section.data.content` to be Array of Strings.
-            // My mapping above `data: { content: data.card1 }` ensures compatibility.
+            const rawContent = Array.isArray(section.data.content)
+                ? section.data.content
+                : [section.data.content || ""];
 
-            const rawLines = Array.isArray(section.data.content)
-                ? section.data.content.map(line => cleanContentLine(line))
-                : [cleanContentLine(section.data.content || "")];
+            // 1. First Pass: Basic cleanup (remove refs, fix spacing artifacts) but PRESERVE CASE for merge logic
+            const preCleaned = rawContent.map(line => {
+                if (!line) return "";
+                let txt = line
+                    .replace(/\(Ref\..*?\)/gi, '')
+                    .replace(/\(Pág\..*?\)/gi, '')
+                    .trim();
+                // Apply ONLY the encoding/spacing fixes, NOT case
+                return cleanTextCommon(txt);
+            }).filter(l => l.length > 0);
 
-            // Wrap text
-            const wrapped = [];
-            rawLines.forEach(line => {
-                // Ensure we don't have empty lines after cleaning
-                if (line && line.replace(/•|-/, '').trim().length > 0) {
-                    // Prepend bullet if it's a list item and doesn't have one
-                    // Check clean version for bullet check
-                    const cleanLine = line.trim(); /* pre-cleaned above? wait. map returns clean. */
+            // 2. Smart Merge Strategy
+            const mergedLines = [];
+            preCleaned.forEach((line) => {
+                if (mergedLines.length === 0) {
+                    mergedLines.push(line);
+                    return;
+                }
 
-                    let textToWrap = line;
-                    if (!textToWrap.startsWith("•") && !textToWrap.startsWith("-")) {
-                        textToWrap = "• " + textToWrap;
-                    }
+                const prev = mergedLines[mergedLines.length - 1];
 
-                    const splitLines = doc.splitTextToSize(textToWrap, (colWidth - 8)); // -8 for padding
-                    splitLines.forEach(l => wrapped.push(l));
+                // Detection of "New Item" vs "Continuation"
+                // New Item if:
+                // - Starts with Bullet/Dash/Number (e.g. "•", "-", "1.")
+                // - Starts with "Field:" pattern (e.g. "Identificador:", "CAS:", "Inhalación:")
+                // - Previous line ends with specific punctuation? (Hard to rely on)
+
+                const isBullet = /^[\u2022\-\*\d\.]+/.test(line);
+                const isField = /^[A-ZÁÉÍÓÚÑ][\w\s\(\)]+:/.test(line); // Capitalized Word(s) + Colon
+                const startsLower = /^[a-z]/.test(line);
+
+                if (isBullet || isField) {
+                    mergedLines.push(line);
+                } else {
+                    // Merge with previous
+                    mergedLines[mergedLines.length - 1] = prev + " " + line;
                 }
             });
+
+            // 3. Final Pass: Apply Sentence Case + Wrap
+            const wrapped = [];
+            mergedLines.forEach(line => {
+                // Now apply Sentence Case to the FULL merged line
+                const finalLine = cleanForBody(line);
+
+                // Add bullet if missing
+                let textToWrap = finalLine;
+                if (!textToWrap.startsWith("•") && !textToWrap.startsWith("-")) {
+                    textToWrap = "• " + textToWrap;
+                }
+
+                const splitLines = doc.splitTextToSize(textToWrap, (colWidth - 8));
+                splitLines.forEach(l => wrapped.push(l));
+            });
+
             return wrapped;
         };
 
