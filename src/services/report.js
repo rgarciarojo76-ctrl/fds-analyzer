@@ -72,38 +72,59 @@ export const generatePDF = async (data, customSections = null) => {
         doc.setFont("helvetica", "bold");
         doc.text("ANÁLISIS DE FICHAS DE DATOS DE SEGURIDAD", pageWidth - margin, 18, { align: 'right' });
 
-        // Helper to fix broken spacing and ENCODING artifacts for PDF
-        // 1. Replaces unsupported chars (≥, ≤, μ) with safe ASCII (>=, <=, u)
-        // 2. Collapses "N I Q U E L" -> "NÍQUEL"
-        const cleanForPdfTitle = (text) => {
-            if (!text) return "PRODUCTO QUÍMICO";
+        // --- CLEANING HELPERS ---
 
-            let cleaned = text.trim().toUpperCase();
+        // 1. Common cleanup: Encoding + Spacing Normalization (Case Preserved)
+        const cleanTextCommon = (text) => {
+            if (!text) return "";
+            let cleaned = text.trim();
 
-            // 1. Fix commonly unsupported chars in standard PDF fonts
-            // 'e' appearing instead of '≥' is a classic encoding mismatch.
+            // Fix commonly unsupported chars in standard PDF fonts
             const map = {
                 '≥': '>=',
                 '≤': '<=',
                 'µ': 'u',
                 'μ': 'u', // Greek mu
+                'œ': 'u', // Sometimes mu is misread as ligature oe or similar in specific encodings
                 '–': '-', // En dash
                 '—': '-', // Em dash
                 '“': '"',
                 '”': '"'
             };
-            cleaned = cleaned.replace(/[≥≤µμ–—“”]/g, c => map[c] || c);
+            cleaned = cleaned.replace(/[≥≤µμœ–—“”]/g, c => map[c] || c);
 
-            // 2. Normalize whitespace (tabs/newlines -> single space)
+            // Normalize whitespace
             cleaned = cleaned.replace(/\s+/g, ' ');
 
-            // 3. Fix Spacing "N I Q U E L" -> "NÍQUEL"
-            // Use proven Chain Logic:
-            cleaned = cleaned.replace(/(^|[\s])((?:[A-Z0-9\u00C0-\u00FF]\s){2,}[A-Z0-9\u00C0-\u00FF])(?=[\s]|$)/g, (match, prefix, chain) => {
+            // Fix Spacing "N I Q U E L" -> "NÍQUEL" (Case Insensitive)
+            // Matches sequence of 3+ letters separated by SINGLE spaces
+            cleaned = cleaned.replace(/(^|[\s])((?:[a-zA-Z0-9\u00C0-\u00FF]\s){2,}[a-zA-Z0-9\u00C0-\u00FF])(?=[\s]|$)/gi, (match, prefix, chain) => {
                 return prefix + chain.replace(/\s/g, '');
             });
 
             return cleaned;
+        };
+
+        // 2. Title Specific: Uppercase + Clean
+        const cleanForPdfTitle = (text) => {
+            if (!text) return "PRODUCTO QUÍMICO";
+            // First uppercase, then clean (spacing logic works better on consistent case or insensitive)
+            return cleanTextCommon(text).toUpperCase();
+        };
+
+        // 3. Body Specific: Sentence Case + Clean
+        const cleanForBody = (text) => {
+            if (!text) return "";
+            const cleaned = cleanTextCommon(text);
+
+            // Sentence Case: First char upper, rest lower.
+            // Exception: Keep existing acronyms? 
+            // User requested: "primera letra de la frase en mayuscula y el resto en minuscula"
+            // This implies strict sentence case.
+
+            if (cleaned.length < 2) return cleaned.toUpperCase();
+
+            return cleaned.charAt(0).toUpperCase() + cleaned.slice(1).toLowerCase();
         };
 
         // Product Name Logic (Simplified for FDS)
@@ -115,6 +136,7 @@ export const generatePDF = async (data, customSections = null) => {
             // Fallback: Try to find name in card1 if productName matches default
             const firstLine = data.card1[0];
             if (firstLine && firstLine.length < 100) {
+                // Remove reference tag before cleaning
                 productName = cleanForPdfTitle(firstLine.replace(/\(Ref\..*?\)/g, "").trim());
             }
         }
@@ -163,31 +185,13 @@ export const generatePDF = async (data, customSections = null) => {
         doc.setDrawColor(...borderColor);
         doc.setLineWidth(0.1);
 
-        // Helper to clean content lines (Remove Page Refs if desired, or keep them small)
-        // User requested exact template. The template cleans them. 
-        // Let's clean them to look like the report, but maybe keep them if critical for FDS?
-        // The user said "usa el mismo tipo de letra, ... adaptando en texto".
-        // The reference code REMOVES refs: .replace(/\(Ref\..*?\)/gi, '')
-        // Use the same logic for visual consistency.
-
-        // Use the same clean helper for body text too!
-        // But body text logic might differ from title logic (e.g. keep special chars?).
-        // Actually, PDF body text ALSO has encoding issues with standard fonts.
-        // So we should reuse the mapping logic.
-
-        const fixBodySpacing = (text) => {
-            // Reuse the relevant parts of cleanForPdfTitle, but maybe less aggressive on merging?
-            // Actually, merging chains is generally safe for "N I Q U E L".
-            return cleanForPdfTitle(text);
-        };
-
         const cleanContentLine = (text) => {
             let cleaned = text
                 .replace(/\(Ref\..*?\)/gi, '')
                 .replace(/\(Pág\..*?\)/gi, '')
                 .trim();
 
-            return fixBodySpacing(cleaned);
+            return cleanForBody(cleaned);
         };
 
         // Helper to get wrapped lines and CLEAN them
@@ -208,6 +212,9 @@ export const generatePDF = async (data, customSections = null) => {
                 // Ensure we don't have empty lines after cleaning
                 if (line && line.replace(/•|-/, '').trim().length > 0) {
                     // Prepend bullet if it's a list item and doesn't have one
+                    // Check clean version for bullet check
+                    const cleanLine = line.trim(); /* pre-cleaned above? wait. map returns clean. */
+
                     let textToWrap = line;
                     if (!textToWrap.startsWith("•") && !textToWrap.startsWith("-")) {
                         textToWrap = "• " + textToWrap;
