@@ -213,14 +213,21 @@ export const generatePDF = async (data, customSections = null) => {
                 // Detection of "New Item" vs "Continuation"
                 // New Item if:
                 // - Starts with Bullet/Dash/Number (e.g. "•", "-", "1.")
-                // - Starts with "Field:" pattern (e.g. "Identificador:", "CAS:", "Inhalación:")
-                // - Previous line ends with specific punctuation? (Hard to rely on)
+                // - Starts with "Field:" pattern (e.g. "Identificador:", "CAS:", "Inhalación:", "ingestión:") - NOW CASE INSENSITIVE
+                // - Explicitly matches known section headers/keys
 
                 const isBullet = /^[\u2022\-\*\d\.]+/.test(line);
-                const isField = /^[A-ZÁÉÍÓÚÑ][\w\s\(\)]+:/.test(line); // Capitalized Word(s) + Colon
-                const startsLower = /^[a-z]/.test(line);
+                const isField = /^[a-zA-Z\u00C0-\u00FF][\w\s\(\)\.\-]*:/.test(line); // Changed to allow lowercase and more chars before colon
 
-                if (isBullet || isField) {
+                // Extra safety: List of common keys that SHOULD be new lines
+                const commonKeys = [
+                    "ingestión", "inhalación", "piel", "ojos", "contacto",
+                    "medidas", "síntomas", "efectos", "nota", "protección",
+                    "instrucciones", "almacenamiento", "usos", "identificador", "nombre"
+                ];
+                const startsWithKey = commonKeys.some(key => line.toLowerCase().startsWith(key + ":"));
+
+                if (isBullet || isField || startsWithKey) {
                     mergedLines.push(line);
                 } else {
                     // Merge with previous
