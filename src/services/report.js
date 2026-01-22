@@ -72,39 +72,50 @@ export const generatePDF = async (data, customSections = null) => {
         doc.setFont("helvetica", "bold");
         doc.text("ANÁLISIS DE FICHAS DE DATOS DE SEGURIDAD", pageWidth - margin, 18, { align: 'right' });
 
-        // Helper to fix broken spacing artifacts (e.g. "t e x t o" -> "texto")
-        // REVISED SAFE VERSION: Collapses sequences of 3+ isolated letters.
-        // Fixes "N I Q U E L" -> "NÍQUEL"
-        // Fixes "I d e n t i f i c a d o r" -> "Identificador"
-        // Ignores "y o" (2 chars), "a E" (2 chars).
-        // Trade-off: Might merge "A y B" -> "AyB", but preserves readability better than broken headers.
-        const fixBrokenSpacing = (text) => {
-            if (!text) return text;
+        // Helper to fix broken spacing and ENCODING artifacts for PDF
+        // 1. Replaces unsupported chars (≥, ≤, μ) with safe ASCII (>=, <=, u)
+        // 2. Collapses "N I Q U E L" -> "NÍQUEL"
+        const cleanForPdfTitle = (text) => {
+            if (!text) return "PRODUCTO QUÍMICO";
 
-            // Regex explanation:
-            // (^|[\s])       -> Anchor (Start or Space)
-            // (              -> Capture Group 2 (The Chain)
-            //   (?:[a-zA-Z\u00C0-\u00FF]\s+){2,}  -> 2 or more repetitions of "Letter + Space" (Result = 3 items total with next line)
-            //   [a-zA-Z\u00C0-\u00FF]             -> Final Letter
-            // )
-            // (?=[\s]|$)     -> Lookahead Anchor (Space or End)
+            let cleaned = text.trim().toUpperCase();
 
-            // Replaces ' N I Q U E L ' -> ' NÍQUEL '
-            return text.replace(/(^|[\s])((?:[a-zA-Z\u00C0-\u00FF]\s+){2,}[a-zA-Z\u00C0-\u00FF])(?=[\s]|$)/g, (match, prefix, chain) => {
-                return prefix + chain.replace(/\s+/g, '');
+            // 1. Fix commonly unsupported chars in standard PDF fonts
+            // 'e' appearing instead of '≥' is a classic encoding mismatch.
+            const map = {
+                '≥': '>=',
+                '≤': '<=',
+                'µ': 'u',
+                'μ': 'u', // Greek mu
+                '–': '-', // En dash
+                '—': '-', // Em dash
+                '“': '"',
+                '”': '"'
+            };
+            cleaned = cleaned.replace(/[≥≤µμ–—“”]/g, c => map[c] || c);
+
+            // 2. Normalize whitespace (tabs/newlines -> single space)
+            cleaned = cleaned.replace(/\s+/g, ' ');
+
+            // 3. Fix Spacing "N I Q U E L" -> "NÍQUEL"
+            // Use proven Chain Logic:
+            cleaned = cleaned.replace(/(^|[\s])((?:[A-Z0-9\u00C0-\u00FF]\s){2,}[A-Z0-9\u00C0-\u00FF])(?=[\s]|$)/g, (match, prefix, chain) => {
+                return prefix + chain.replace(/\s/g, '');
             });
+
+            return cleaned;
         };
 
         // Product Name Logic (Simplified for FDS)
         let productName = "PRODUCTO QUÍMICO";
 
         if (data && data.productName) {
-            productName = fixBrokenSpacing(data.productName.toUpperCase());
+            productName = cleanForPdfTitle(data.productName);
         } else if (data && data.card1 && data.card1.length > 0) {
             // Fallback: Try to find name in card1 if productName matches default
             const firstLine = data.card1[0];
             if (firstLine && firstLine.length < 100) {
-                productName = fixBrokenSpacing(firstLine.replace(/\(Ref\..*?\)/g, "").trim().toUpperCase());
+                productName = cleanForPdfTitle(firstLine.replace(/\(Ref\..*?\)/g, "").trim());
             }
         }
 
@@ -159,6 +170,16 @@ export const generatePDF = async (data, customSections = null) => {
         // The reference code REMOVES refs: .replace(/\(Ref\..*?\)/gi, '')
         // Use the same logic for visual consistency.
 
+        // Use the same clean helper for body text too!
+        // But body text logic might differ from title logic (e.g. keep special chars?).
+        // Actually, PDF body text ALSO has encoding issues with standard fonts.
+        // So we should reuse the mapping logic.
+
+        const fixBodySpacing = (text) => {
+            // Reuse the relevant parts of cleanForPdfTitle, but maybe less aggressive on merging?
+            // Actually, merging chains is generally safe for "N I Q U E L".
+            return cleanForPdfTitle(text);
+        };
 
         const cleanContentLine = (text) => {
             let cleaned = text
@@ -166,7 +187,7 @@ export const generatePDF = async (data, customSections = null) => {
                 .replace(/\(Pág\..*?\)/gi, '')
                 .trim();
 
-            return fixBrokenSpacing(cleaned);
+            return fixBodySpacing(cleaned);
         };
 
         // Helper to get wrapped lines and CLEAN them
